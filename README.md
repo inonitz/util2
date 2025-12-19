@@ -64,8 +64,7 @@ ninja $PROJECT_NAME
 
 In a single line for copying:  
 ```
-cd util2 && mkdir -p ../build && cmake -S . -B ../build -G 'Ninja' -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=0 && cd ../build && cp "compile_commands.json" "../../compile_commands.json" && ninja util2
-
+cd util2 && mkdir -p ../build && cmake -S . -B ../build -G 'Ninja' -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=0 && cd ../build && cp "compile_commands.json" "../../compile_commands.json" && ninja util2 && cd ../
 ```
 
 <br></br>

@@ -1,7 +1,7 @@
 
-## Rudimentary Documentation
+# Rudimentary Documentation
 
-* This doucmentation doesn't cover all files, but does provide demonstrations for most files.  
+* Basic Information regarding each header, use cases, etc...  
 
 0. [aligned_malloc.h](include/util2/C/aligned_malloc.h):  
     allocate a memory block that is aligned to a specific address multiple (4KiB Page, Cache Line, Etc...)
@@ -81,15 +81,15 @@
     Random number generator for all base types -  
     initialized with a random hardware seed at [Static Initialization Time](https://stackoverflow.com/a/17785008)
 
-26. [include/util2/runtime_constptr.hpp](include/util2/runtime_constptr.hpp):  
+25. [include/util2/runtime_constptr.hpp](include/util2/runtime_constptr.hpp):  
     I needed a way to initialize a constant pointer during runtime once, and only once, s.t any further modifications will not work
 
-27. [include/util2/string.hpp](include/util2/string.hpp):  
+26. [include/util2/string.hpp](include/util2/string.hpp):  
     Provides common functions in [cstring](https://en.cppreference.com/w/cpp/header/cstring.html), also provides ```readtsc()```, ```count_trailing_zeros()```, etc...
 
-28. [include/util2/time.hpp](include/util2/time.hpp):  
+27. [include/util2/time.hpp](include/util2/time.hpp):  
     Provides the ```util2::Time``` namespaces, which contains classes for calculating time durations, average-Tick-Duration, etc...
 
-29. [include/util2/vec2.hpp](include/util2/vec2.hpp):  
+28. [include/util2/vec2.hpp](include/util2/vec2.hpp):  
     Vector, Matrix Math Operations in Row-Major Memory Order, using float-only ```vec2```, ```vec3```, ```vec4```, ```mat2x2``` ```mat4x4``` classes and associated functions, such as ```identity()```, ```translate()```, ```transpose()```, ```perspective()```, etc...  
     was primarily used for 3D Graphics
