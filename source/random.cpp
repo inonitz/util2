@@ -28,9 +28,11 @@ struct NumberGenerator
 
     explicit NumberGenerator(u64 initialSeed = 0)
     {
-        initialSeed += __scast(std::random_device::result_type, initialSeed == 0) * std::random_device()();
+        if(initialSeed == 0) {
+            initialSeed = std::random_device()();
+        }
         seed = initialSeed;
-        generator.seed(initialSeed);
+        generator.seed(seed);
         return;
     }
 
