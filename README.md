@@ -18,7 +18,7 @@
 ## About The Project
 
 C & C++ Routines, Typedefines, Classes, Templates, etc... that I needed over the years to simplify my workflows  
-for ABI Compatibility, it is recommended to use this project as a git submodule, with the included C headers  
+for ABI Compatibility, it is recommended to use the included C Headers and to also compile the project as a dependency (Git Submodule, ...)
 See docs.md for API Documentation
 
 ### Project Structure
