@@ -24,14 +24,15 @@ typedef struct __generic_format_char_buffer
 
 
 static alignsz(64) mtx_t                 s_write_lock;
-static alignsz(64) atomic_uint_least64_t s_onceflag;
+static alignsz(64) atomic_uint_least64_t s_onceFlag         = 0;
+static alignsz(64) atomic_uint_least64_t s_finishedInitFlag = 0;
 static FILE*                             s_defaultlogbuf = NULL;
 static FILE*                             s_currlogbuffer = NULL;
 
 
 static void __util2_begin_exclusion()
 {
-    while( mtx_trylock(&s_write_lock) != thrd_success)
+    while( !s_finishedInitFlag || ( mtx_trylock(&s_write_lock) != thrd_success) )
         millisleep(5);
 
     return;
@@ -58,21 +59,24 @@ static void util2_destroy_state()
 
 static void util2_init_state_once()
 {
-    if(unlikely( atomic_load(&s_onceflag) != 0 ))
-        return;
+    alignsz(64) uint_least64_t s_onceFlagDesiredOne   = 1;
+    alignsz(64) uint_least64_t s_onceFlagExpectedZero = 0;
 
-    mtx_init(&s_write_lock, mtx_plain | mtx_recursive);
+    
+    if(!atomic_compare_exchange_strong(&s_onceFlag, &s_onceFlagExpectedZero, s_onceFlagDesiredOne))
+        return; /* The winning thread will exchange `onceflag` to 1, the rest will fail now and on subsequent calls */
 
-    __util2_begin_exclusion();
+
+    if(mtx_init(&s_write_lock, mtx_plain | mtx_recursive) != thrd_success) {
+        exit(-1);
+    }
     s_defaultlogbuf = UTIL2_PRINT_LOG_TO_FILE == 1 ? fopen("printlog.txt", "w") : NULL;
     s_currlogbuffer = UTIL2_PRINT_LOG_TO_FILE == 1 ? s_defaultlogbuf : stdout;
     if(atexit(util2_destroy_state) != 0) {
         exit(-1);
     }
-    __util2_end_exclusion();
 
-    /* on next call the function will return */
-    atomic_fetch_add_explicit(&s_onceflag, 1, memory_order_relaxed);
+    atomic_store(&s_finishedInitFlag, 1);
     return;
 }
 
