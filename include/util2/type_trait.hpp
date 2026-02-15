@@ -29,6 +29,12 @@ template<typename T, typename U> struct is_same_type       { static constexpr bo
 template<typename T>             struct is_same_type<T, T> { static constexpr bool value = true;  };
 
 
+template<typename T> struct value_ptr {
+    using type = typename util2::type_trait::conditional_operator<sizeof(T) <= 8, T, T*>::type;
+    static constexpr bool value = (sizeof(T) <= 8);
+};
+
+
 template<class T> struct remove_const_qualifier          { typedef T type; };
 template<class T> struct remove_const_qualifier<const T> { typedef T type; };
 
@@ -37,7 +43,6 @@ template<class T> struct remove_const_qualifier<const T> { typedef T type; };
 
 template<typename T> using ref 		 = typename util2::type_trait::conditional_operator<sizeof(T) <= 8, T, T&		>::type;
 template<typename T> using const_ref = typename util2::type_trait::conditional_operator<sizeof(T) <= 8, T, T const&>::type;
-template<typename T> using value_ptr = typename util2::type_trait::conditional_operator<sizeof(T) <= 8, T, T*>::type;
 template<typename T> using imut_type_handle = T const*;
 template<typename T> using mut_type_handle  = T*;
 template<typename T> using remove_const = typename util2::type_trait::remove_const_qualifier<T>::type;
