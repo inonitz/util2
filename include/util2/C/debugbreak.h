@@ -57,10 +57,10 @@
 UTIL2_EXTERNC_DECL_BEGIN
 
 
-__force_inline inline void util2_breakpoint() {
+__force_inline inline void util2_inlinedbgbreak() {
     UTIL2_INTERNAL_DEBUG_BREAKPOINT_MACRO();
 }
-__force_inline inline void util2_breakpointif(unsigned char condition) {
+__force_inline inline void util2_inlinedbgbreakif(unsigned char condition) {
     if(boolean(condition)) {
         UTIL2_INTERNAL_DEBUG_BREAKPOINT_MACRO();
     }
