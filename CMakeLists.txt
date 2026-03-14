@@ -9,11 +9,14 @@ project(util2
 set(SOURCES
     source/C/aligned_malloc.c
     source/C/buffer.c
+    source/C/debugbreak.c
     source/C/file.c
     source/C/ifcrash2.c
     source/C/image2.c
     source/C/marker4.c
+    source/C/mt19937ii.c
     source/C/print.c
+    source/C/random.c
     source/C/sleep.c
     source/C/stb_image.c
     source/C/thread_sleep.c
@@ -33,13 +36,16 @@ set(HEADERS
     include/util2/C/base_type.h
     include/util2/C/buffer.h
     include/util2/C/compiler_warning.h
+    include/util2/C/debugbreak.h
     include/util2/C/file.h
     include/util2/C/ifcrash2.h
     include/util2/C/image2.h
     include/util2/C/macro.h
     include/util2/C/marker4.h
+    include/util2/C/mt19937ii.h
     include/util2/C/murmur64a.h
     include/util2/C/print.h
+    include/util2/C/random.h
     include/util2/C/sleep.h
     include/util2/C/static_assert.h
     include/util2/C/stb_image.h
