@@ -15,10 +15,11 @@
 #endif /* _DEBUG || DEBUG */
 
 
+#include "util2_extern.h"
+#include "util2_api.h"
+#include "macro.h"
+
 #ifdef UTIL2_BREAKPOINT_DEFINITION_FUNCTION
-#   include "util2_extern.h"
-#   include "util2_api.h"
-#   include "macro.h"
 #   ifdef _MSC_VER
 #      define UTIL2_INTERNAL_DEBUG_BREAKPOINT_MACRO() __debugbreak()
 
@@ -45,13 +46,21 @@
 #      elif defined(__riscv)
 #          define UTIL2_INTERNAL_DEBUG_BREAKPOINT_MACRO() __asm__ volatile(".4byte 0x00100073");
 
-#      else
-           /* Fallback: trigger SIGTRAP */
-#          include <signal.h>
-#          include <unistd.h>
-#          define UTIL2_INTERNAL_DEBUG_BREAKPOINT_MACRO() raise(SIGTRAP);
+#      elif defined(__has_include) && __has_include(<signal.h>) && __has_include(<unistd.h>)
+            /* Fallback: trigger SIGTRAP */
+#           include <signal.h>
+#           include <unistd.h>
+#           define UTIL2_INTERNAL_DEBUG_BREAKPOINT_MACRO() raise(SIGTRAP);
+#       else
+#           pragma WARN("Internal UTIL2_INTERNAL_DEBUG_BREAKPOINT_MACRO is Empty, Unsupported Architecture")
+#           define UTIL2_INTERNAL_DEBUG_BREAKPOINT_MACRO()
 #      endif /* if defined(architecture) */
 #   endif /* if defined(CompilerSpecific) */
+#else
+#   ifndef UTIL2_INTERNAL_DEBUG_BREAKPOINT_MACRO
+#       define UTIL2_INTERNAL_DEBUG_BREAKPOINT_MACRO() (void)(0);
+#   endif /* if !defined(breakpoint_macro) */
+#endif /* UTIL2_BREAKPOINT_DEFINITION_FUNCTION */
 
 
 UTIL2_EXTERNC_DECL_BEGIN
@@ -67,15 +76,11 @@ __force_inline inline void util2_inlinedbgbreakif(unsigned char condition) {
     return;
 }
 
-
 void UTIL2_API util2_debugbreak();
 void UTIL2_API util2_debugbreakif(unsigned char condition); 
 
 
 UTIL2_EXTERNC_DECL_END
-
-
-#endif /* UTIL2_BREAKPOINT_DEFINITION_FUNCTION */
 
 
 #endif /* __UTIL2_AGNOSTIC_DEBUG_BREAKPOINT_DEFINITION__  */

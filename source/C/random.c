@@ -1,6 +1,8 @@
 #include <util2/C/random.h>
 #include <util2/C/macro.h>
 #include <util2/C/mt19937ii.h>
+#include <stdlib.h>
+#include <time.h>
 
 
 static void initRNGOnce();
@@ -57,17 +59,47 @@ i64 UTIL2_API random64i()
     return isNeg ? -res : res;
 }
 
+/* Normalized To Range [0, 1] */
+f32 UTIL2_API random32f()
+{
+    initRNGOnce();
+    return (f32)util2_generateRealOnClosedInterval();
+}
+
+/* Normalized To Range [0, 1] */
+f64 UTIL2_API random64f()
+{
+    initRNGOnce();
+    return util2_generateRealOnClosedInterval();
+}
 
 
 
+/*
+    [NOTE]:
+    I've definitely considered using __attribute__((constructor)) and its friends
+    instead of this function call, But it might not work on some platforms ;
+    It requires extensive testing on my end, and even then,
+    it might just break on an SDK update (Looking at you MSVC!).
+    
+    For More info regarding implementation details and edge cases:
+    1. https://stackoverflow.com/questions/1113409/attribute-constructor-equivalent-in-vc
+    2. https://sillycross.github.io/2022/10/02/2022-10-02/
+*/
 void initRNGOnce()
 {
     if(likely(gs_initEngine)) {
         return;
     }
 
+    
+    u32 keyBuffer[8] = {};
+    srand(time(NULL));
+    for(uint8_t i = 0; i < 8; ++i) {
+        keyBuffer[i] = rand();
+    }
 
-    util2_initializeMersenneTwister19937Ver2_Default();
+    util2_initializeMersenneTwister19937Ver2_RandomKeyBuffer(keyBuffer, 8);
     gs_initEngine = 1;
     return;
 }

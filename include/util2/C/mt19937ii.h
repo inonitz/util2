@@ -9,7 +9,7 @@ UTIL2_EXTERNC_DECL_BEGIN
 
 
 void   UTIL2_API util2_initializeMersenneTwister19937Ver2_Default();
-void   UTIL2_API util2_initializeMersenneTwister19937Ver2_RandBuffer(
+void   UTIL2_API util2_initializeMersenneTwister19937Ver2_RandomKeyBuffer(
     u32 const* keyBuf, 
     i32        keyBufLength
 );

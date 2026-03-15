@@ -49,6 +49,9 @@
 	1. https://www.ritsumei.ac.jp/~harase/megenerators.html
 	2. https://www.ritsumei.ac.jp/~harase/megenerators2.html
 	3. https://www.ritsumei.ac.jp/~harase/memt19937-II.c
+	Also See (WELL512 and friends):
+	https://stackoverflow.com/a/1227137
+	https://en.wikipedia.org/wiki/Well_equidistributed_long-period_linear
 */
 
 
@@ -109,7 +112,7 @@ void util2_initializeMersenneTwister19937Ver2_Default()
 }
 
 
-void util2_initializeMersenneTwister19937Ver2_RandBuffer(
+void util2_initializeMersenneTwister19937Ver2_RandomKeyBuffer(
     u32 const* keyBuf, 
     i32 keyBufLength
 ) {
