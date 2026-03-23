@@ -87,7 +87,7 @@
 #       define notused __util_attribute_unused
 #   endif
 
-#   if defined(_DEBUG) || defined(DEBUG) /* release mode (Usually) omits a lot of code => gives many unused_param errors */
+#   if defined(_DEBUG) || defined(DEBUG) || !defined(NDEBUG) /* release mode (Usually) omits a lot of code => gives many unused_param errors */
 #       define __release_unused
 #   else
 #       define __release_unused notused
@@ -233,7 +233,7 @@
 #       define __unused __util_attribute_unused
 #   endif
 
-#   if defined(_DEBUG) /* release mode (Usually) omits a lot of code => gives many unused_param errors */
+#   if defined(_DEBUG) || !defined(NDEBUG) /* release mode (Usually) omits a lot of code => gives many unused_param errors */
 #       define __release_unused
 #   else
 #       define __release_unused notused
@@ -415,7 +415,7 @@
 #endif
 
 
-#if defined _DEBUG || defined DEBUG
+#if defined(_DEBUG) || defined(DEBUG) || !defined(NDEBUG)
 #    define util2_debug(...) { __VA_ARGS__ }
 #    define util2_debugnobr(...) __VA_ARGS__
 #    define util2_debug_declaration_nobr(...) __VA_ARGS__

@@ -40,7 +40,7 @@ template<
 void CommonPoolDef<objectSizeInBytes>::free(void* ptr)
 {
     u64 idx = index_from_pointer(ptr) / objectSizeInBytes;
-    ifcrash(!isaligned(ptr, objectSize()) || !occupied(idx) || (m_freeBlk == m_elemCount));
+    ifcrash( !isaligned( ptr, objectSize() ) || !occupied(idx) || (m_freeBlk == m_elemCount) );
 
     m_freelist[idx].index *= -1;
     m_freelist[idx].next = m_available;

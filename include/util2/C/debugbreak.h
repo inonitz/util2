@@ -1,11 +1,14 @@
 #ifndef __UTIL2_AGNOSTIC_DEBUG_BREAKPOINT_DEFINITION__
 #define __UTIL2_AGNOSTIC_DEBUG_BREAKPOINT_DEFINITION__
+#include "util2_extern.h"
+#include "util2_api.h"
+#include "macro.h"
 /*
     Many thanks to: https://github.com/scottt/debugbreak
     Although his micro library is more thorough and battle tested,
     this is good enough for me
 */
-#if defined(_DEBUG) || defined(DEBUG)
+#if !defined(NDEBUG) || defined(_DEBUG) || defined(DEBUG)
 #   if defined(UTIL2_BREAKPOINT_DEFINITION_FUNCTION)
 #       include "compiler_warning.h"
 #       pragma WARN("UTIL2_BREAKPOINT_DEFINITION_FUNCTION Macro Already defined somewhere else!")
@@ -14,10 +17,6 @@
 #   endif /* UTIL2_BREAKPOINT_DEFINITION_FUNCTION */
 #endif /* _DEBUG || DEBUG */
 
-
-#include "util2_extern.h"
-#include "util2_api.h"
-#include "macro.h"
 
 #ifdef UTIL2_BREAKPOINT_DEFINITION_FUNCTION
 #   ifdef _MSC_VER

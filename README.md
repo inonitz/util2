@@ -9,7 +9,7 @@
 <h3 align="center">Utillities '2'</h3>
 
   <p align="center">
-    Common Utillity Library
+    Common Utility Library
   </p>
 
 </div>

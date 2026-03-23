@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 project(util2 
     VERSION 2.0.0
-    DESCRIPTION "C/C++ Cross-Platform Utillity Library"
+    DESCRIPTION "C/C++ Cross-Platform Utility Library"
     LANGUAGES C CXX
 )
 
