@@ -1,6 +1,6 @@
 #ifndef __UTIL2_BASE_MACRO_DEFINITIONS__
 #define __UTIL2_BASE_MACRO_DEFINITIONS__
-#include "compiler_warning.h"
+#include "debug_macro.h"
 
 
 /* All credit goes to: https://www.fluentcpp.com/2019/08/30/how-to-disable-a-warning-in-cpp/ */
@@ -12,7 +12,7 @@
 #      define DISABLE_WARNING_PUSH           DO_PRAGMA(GCC diagnostic push)
 #   endif /* !defined DISABLE_WARNING_PUSH */
 #   ifndef DISABLE_WARNING_POP
-#      define DISABLE_WARNING_POP            DO_PRAGMA(GCC diagnostic pop) 
+#      define DISABLE_WARNING_POP            DO_PRAGMA(GCC diagnostic pop)
 #   endif /* !defined DISABLE_WARNING_POP */
 #   ifndef DISABLE_WARNING
 #      define DISABLE_WARNING(warningName)   DO_PRAGMA(GCC diagnostic ignored #warningName)
@@ -87,7 +87,7 @@
 #       define notused __util_attribute_unused
 #   endif
 
-#   if defined(_DEBUG) || defined(DEBUG) || !defined(NDEBUG) /* release mode (Usually) omits a lot of code => gives many unused_param errors */
+#   if UTIL2_RELEASE_BUILD /* release mode (Usually) omits a lot of code => gives many unused_param errors */
 #       define __release_unused
 #   else
 #       define __release_unused notused
@@ -158,7 +158,7 @@
 #      define DISABLE_WARNING_PUSH           __pragma(warning(  push  ))
 #   endif /* !defined DISABLE_WARNING_PUSH */
 #   ifndef DISABLE_WARNING_POP
-#      define DISABLE_WARNING_POP            __pragma(warning(  pop  )) 
+#      define DISABLE_WARNING_POP            __pragma(warning(  pop  ))
 #   endif /* !defined DISABLE_WARNING_POP */
 #   ifndef DISABLE_WARNING
 #      define DISABLE_WARNING(warningNumber) __pragma(warning( disable : warningNumber ))
@@ -233,7 +233,7 @@
 #       define __unused __util_attribute_unused
 #   endif
 
-#   if defined(_DEBUG) || !defined(NDEBUG) /* release mode (Usually) omits a lot of code => gives many unused_param errors */
+#   if UTIL2_RELEASE_BUILD == 0 /* release mode (Usually) omits a lot of code => gives many unused_param errors */
 #       define __release_unused
 #   else
 #       define __release_unused notused
@@ -274,7 +274,7 @@
 #   if defined __force_inline
 #       pragma message WARN("Macro __force_inline already defined")
 #   else
-#       if defined __cplusplus 
+#       if defined __cplusplus
 #           define __force_inline [[msvc::forceinline]]
 #       else
 #           define __force_inline
@@ -306,14 +306,14 @@
 
 
 /*
-    aligned_malloc already defined in most major compilers/stdlibs 
+    aligned_malloc already defined in most major compilers/stdlibs
     Nevermind that, just use aligned_malloc.h (the macros below should be refactored)
     also, aligned_alloc/free are defined since C11/C++17
 */
 /*
 #   ifdef __cplusplus
 #       include <cstdlib>
-#   else 
+#   else
 #       include <stdlib.h>
 #   endif
 #   ifndef aligned_alloc
@@ -339,7 +339,7 @@
 #   ifndef DISABLE_WARNING_UNUSED_PARAMETER
 #       define DISABLE_WARNING_UNUSED_PARAMETER
 #   endif
-#   ifndef DISABLE_WARNING_UNUSED_FUNCTION 
+#   ifndef DISABLE_WARNING_UNUSED_FUNCTION
 #       define DISABLE_WARNING_UNUSED_FUNCTION
 #   endif
 #   ifndef DISABLE_WARNING_NESTED_ANON_TYPES
@@ -415,7 +415,7 @@
 #endif
 
 
-#if defined(_DEBUG) || defined(DEBUG) || !defined(NDEBUG)
+#if UTIL2_DEBUG_BUILD
 #    define util2_debug(...) { __VA_ARGS__ }
 #    define util2_debugnobr(...) __VA_ARGS__
 #    define util2_debug_declaration_nobr(...) __VA_ARGS__
