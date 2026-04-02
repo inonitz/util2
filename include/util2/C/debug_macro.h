@@ -39,6 +39,7 @@
 #   pragma message WARN("Somehow util2 didn't detect a Debug/Release Configuration")
 #endif /* UTIL2_DEBUG_BUILD == Undefined */
 
+
 #ifndef UTIL2_RELEASE_BUILD
 #   define UTIL2_RELEASE_BUILD ! !!(UTIL2_DEBUG_BUILD)
 #endif /* UTIL2_RELEASE_BUILD */
