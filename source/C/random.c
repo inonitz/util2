@@ -39,9 +39,12 @@ i32 UTIL2_API random32i()
 
     out   = util2_generate32BitUnsignedInt();
     isNeg = out & k_highestBit;
-    res   = (int32_t)(out >> 1);
 
-    return isNeg ? -res : res;
+    out &= ~k_highestBit; /* Reset the bit we just used to not introduce bias */
+    res  = (int32_t)out;
+    res *= (isNeg ? -1 : 1);
+
+    return res;
 }
 
 i64 UTIL2_API random64i()
