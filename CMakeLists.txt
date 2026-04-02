@@ -36,6 +36,7 @@ set(HEADERS
     include/util2/C/base_type.h
     include/util2/C/buffer.h
     include/util2/C/compiler_warning.h
+    include/util2/C/debug_macro.h
     include/util2/C/debugbreak.h
     include/util2/C/file.h
     include/util2/C/ifcrash2.h
