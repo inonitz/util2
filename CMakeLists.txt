@@ -10,6 +10,7 @@ set(SOURCES
     source/C/aligned_malloc.c
     source/C/buffer.c
     source/C/debugbreak.c
+    source/C/env.c
     source/C/file.c
     source/C/ifcrash2.c
     source/C/image2.c
@@ -38,6 +39,7 @@ set(HEADERS
     include/util2/C/compiler_warning.h
     include/util2/C/debug_macro.h
     include/util2/C/debugbreak.h
+    include/util2/C/env.h
     include/util2/C/file.h
     include/util2/C/ifcrash2.h
     include/util2/C/image2.h
@@ -45,6 +47,7 @@ set(HEADERS
     include/util2/C/marker4.h
     include/util2/C/mt19937ii.h
     include/util2/C/murmur64a.h
+    include/util2/C/platform.h
     include/util2/C/print.h
     include/util2/C/random.h
     include/util2/C/sleep.h
