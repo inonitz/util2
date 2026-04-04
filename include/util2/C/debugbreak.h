@@ -11,7 +11,7 @@
 #if !defined(NDEBUG) || defined(_DEBUG) || defined(DEBUG)
 #   if defined(UTIL2_BREAKPOINT_DEFINITION_FUNCTION)
 #       include "compiler_warning.h"
-#       pragma WARN("UTIL2_BREAKPOINT_DEFINITION_FUNCTION Macro Already defined somewhere else!")
+#       pragma message WARN("UTIL2_BREAKPOINT_DEFINITION_FUNCTION Macro Already defined somewhere else!")
 #   else
 #       define UTIL2_BREAKPOINT_DEFINITION_FUNCTION
 #   endif /* UTIL2_BREAKPOINT_DEFINITION_FUNCTION */
@@ -51,7 +51,7 @@
 #           include <unistd.h>
 #           define UTIL2_INTERNAL_DEBUG_BREAKPOINT_MACRO() raise(SIGTRAP);
 #       else
-#           pragma WARN("Internal UTIL2_INTERNAL_DEBUG_BREAKPOINT_MACRO is Empty, Unsupported Architecture")
+#           pragma message WARN("Internal UTIL2_INTERNAL_DEBUG_BREAKPOINT_MACRO is Empty, Unsupported Architecture")
 #           define UTIL2_INTERNAL_DEBUG_BREAKPOINT_MACRO()
 #      endif /* if defined(architecture) */
 #   endif /* if defined(CompilerSpecific) */

@@ -19,7 +19,7 @@ static i32 util2_setenv_nix(
     bool_t      overwrite
 );
 #else
-#   pragma WARN("Couldn't Detect Platform for internal util2 env functions (see util2/include/util2/C/env.h)\n")
+#   pragma message WARN("Couldn't Detect Platform for internal util2 env functions (see util2/include/util2/C/env.h)\n")
 #endif /* */
 
 
@@ -35,7 +35,7 @@ i32 util2_putenv(const char* str)
 #elif defined(UTIL2_OS_LINUX) && UTIL2_OS_LINUX == 1
     return util2_putenv_nix(str);
 #else
-#   pragma WARN("Couldn't Detect Platform for util2_putenv (see util2/include/util2/C/env.h)\n")
+#   pragma message WARN("Couldn't Detect Platform for util2_putenv (see util2/include/util2/C/env.h)\n")
     return 0xff;
 #endif
 }
@@ -48,7 +48,7 @@ i32 util2_setenv(const char* name, const char* val, bool_t replace_if_exists)
 #elif defined(UTIL2_OS_LINUX) && UTIL2_OS_LINUX == 1
     return util2_setenv_nix(name, val, replace_if_exists);
 #else
-#   pragma WARN("Couldn't Detect Platform for util2_setenv (see util2/include/util2/C/env.h)\n")
+#   pragma message WARN("Couldn't Detect Platform for util2_setenv (see util2/include/util2/C/env.h)\n")
     return 0xff;
 #endif
 }
