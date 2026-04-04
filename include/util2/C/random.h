@@ -1,11 +1,18 @@
-#ifndef __UTIL2_RANDOM_NUMBER_GENERATOR_DEFINITION_MEMT19937_II__
-#define __UTIL2_RANDOM_NUMBER_GENERATOR_DEFINITION_MEMT19937_II__
+#ifndef __UTIL2_RANDOM_NUMBER_GENERATOR_DEFINITION_MET19937_II__
+#define __UTIL2_RANDOM_NUMBER_GENERATOR_DEFINITION_MET19937_II__
 #include "util2_extern.h"
 #include "util2_api.h"
 #include "base_type.h"
 
 
 UTIL2_EXTERNC_DECL_BEGIN
+
+void UTIL2_API randomInitDefault();
+void UTIL2_API randomInitFixedSeed();
+void UTIL2_API randomGetSeed(
+    u32* seedBufferAddress, 
+    u8   seedBufferAddressLength
+);
 
 u8  UTIL2_API random8u();
 u16 UTIL2_API random16u();
@@ -21,4 +28,4 @@ f64 UTIL2_API random64f(); /* Normalized To Range [0, 1] */
 UTIL2_EXTERNC_DECL_END
 
 
-#endif /* __UTIL2_RANDOM_NUMBER_GENERATOR_DEFINITION_WELL512__ */
+#endif /* __UTIL2_RANDOM_NUMBER_GENERATOR_DEFINITION_MET19937_II__ */

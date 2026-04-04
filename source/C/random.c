@@ -5,33 +5,63 @@
 #include <time.h>
 
 
-static void initRNGOnce();
+static void initRNGOnceRand();
+
 
 /* Global State */
 static uint8_t gs_initEngine = 0;
 
 
-
-
-u8  UTIL2_API random8u()  { return random32u() & UINT8_MAX;  }
-u16 UTIL2_API random16u() { return random32u() & UINT16_MAX; }
-u32 UTIL2_API random32u()
+void randomInitDefault()
 {
-    initRNGOnce();
+    initRNGOnceRand();
+    return;
+}
+
+void randomInitFixedSeed()
+{
+    if(likely(gs_initEngine)) {
+        return;
+    }
+    util2_initializeMersenneTwister19937Ver2_FixedDefault();
+    gs_initEngine = 1;
+    return;
+}
+
+void randomGetSeed(
+    u32* seedBufferAddress, 
+    u8   seedBufferAddressLength
+) {
+    if(!gs_initEngine || seedBufferAddressLength < 8) {
+        return;
+    }
+    util2_getMersenneTwister19937Ver2_KeyBuffer(
+        (util2_mt19937ii_keyBuffer_t*)seedBufferAddress
+    );
+    return;
+}
+
+
+
+u8  random8u()  { return random32u() & UINT8_MAX;  }
+u16 random16u() { return random32u() & UINT16_MAX; }
+u32 random32u()
+{
+    initRNGOnceRand();
     return util2_generate32BitUnsignedInt();
 }
 
-u64 UTIL2_API random64u()
+u64 random64u()
 {
-    initRNGOnce();
+    initRNGOnceRand();
     return util2_generate32BitUnsignedInt() + util2_generate32BitUnsignedInt();
 }
 
-i8  UTIL2_API random8i()  { return (i8)(random32i()  & UINT8_MAX);  }
-i16 UTIL2_API random16i() { return (i16)(random32i() & UINT16_MAX); }
-i32 UTIL2_API random32i()
+i8  random8i()  { return (i8)(random32i()  & UINT8_MAX);  }
+i16 random16i() { return (i16)(random32i() & UINT16_MAX); }
+i32 random32i()
 {
-    initRNGOnce();
+    initRNGOnceRand();
     const uint32_t k_highestBit = 0x80000000; /* 1 << 31 */
     uint32_t out   = 0;
     int32_t  res   = 0;
@@ -47,9 +77,9 @@ i32 UTIL2_API random32i()
     return res;
 }
 
-i64 UTIL2_API random64i()
+i64 random64i()
 {
-    initRNGOnce();
+    initRNGOnceRand();
     const uint64_t k_highestBit = 0x8000000000000000; /* 1 << 63 */
     uint64_t out   = 0;
     int64_t  res   = 0;
@@ -63,16 +93,16 @@ i64 UTIL2_API random64i()
 }
 
 /* Normalized To Range [0, 1] */
-f32 UTIL2_API random32f()
+f32 random32f()
 {
-    initRNGOnce();
+    initRNGOnceRand();
     return (f32)util2_generateRealOnClosedInterval();
 }
 
 /* Normalized To Range [0, 1] */
-f64 UTIL2_API random64f()
+f64 random64f()
 {
-    initRNGOnce();
+    initRNGOnceRand();
     return util2_generateRealOnClosedInterval();
 }
 
@@ -89,20 +119,19 @@ f64 UTIL2_API random64f()
     1. https://stackoverflow.com/questions/1113409/attribute-constructor-equivalent-in-vc
     2. https://sillycross.github.io/2022/10/02/2022-10-02/
 */
-void initRNGOnce()
+void initRNGOnceRand()
 {
     if(likely(gs_initEngine)) {
         return;
     }
 
     
-    u32 keyBuffer[8] = {};
+    util2_mt19937ii_keyBuffer_t keyBuffer = {};
     srand(time(NULL));
-    for(uint8_t i = 0; i < 8; ++i) {
+    for(uint8_t i = 0; i < __carraysize(keyBuffer); ++i) {
         keyBuffer[i] = rand();
     }
-
-    util2_initializeMersenneTwister19937Ver2_RandomKeyBuffer(keyBuffer, 8);
+    util2_initializeMersenneTwister19937Ver2_ExistingKeyBuffer(&keyBuffer);
     gs_initEngine = 1;
     return;
 }

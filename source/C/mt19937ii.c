@@ -56,11 +56,12 @@
 
 
 /* Period parameters */
-#define N             624
-#define M             397
-#define MATRIX_A      0x9908b0dfU /* constant vector a */
-#define UPPER_MASK    0x80000000U /* most significant w-r bits */
-#define LOWER_MASK    0x7fffffffU /* least significant r bits */
+#define N           624
+#define M           397
+#define MATRIX_A    0x9908b0dfU /* constant vector a */
+#define UPPER_MASK  0x80000000U /* most significant w-r bits */
+#define LOWER_MASK  0x7fffffffU /* least significant r bits */
+#define UINT32_MASK 0xffffffffU
 #define MIXBITS(u, v) (((u) & UPPER_MASK) | ((v) & LOWER_MASK))
 #define TWIST(u, v)   ((MIXBITS(u, v) >> 1) ^ ((v) & 1U ? MATRIX_A : 0U))
 
@@ -76,12 +77,14 @@
 #define MASK2                0x56bde52aU
 
 
+const u8 util2_mt19937ii_keyBufferLength = 8;
 typedef u32 (*randomUint32GeneratorFunction_mt19937_ver2)(void);
 typedef randomUint32GeneratorFunction_mt19937_ver2 mt19937ver2_32_func;
 
 
 /* Global State */
-static mt19937ver2_32_func gs_randNumGenFunc;
+util2_mt19937ii_keyBuffer_t gs_maybeRecordedInitState;
+static mt19937ver2_32_func  gs_randNumGenFunc;
 static u32 gs_state[N];         /* the array for the state vector            */
 static i32 gs_stateIdx = N + 1; /* mti == N+1 means mt[N] is not initialized */
 static u32 gs_z;
@@ -98,25 +101,48 @@ static u32 internal_case_5(void);
 
 
 
-void util2_initializeMersenneTwister19937Ver2_Default()
+void util2_initializeMersenneTwister19937Ver2_FixedDefault()
 {
-	static const u32 k_initBuf[4] = { 
+	const util2_mt19937ii_keyBuffer_t k_initBuf = {
         0x123U, 
         0x234U, 
         0x345U, 
-        0x456U
-    };
-    static const i32 k_initBufLen = 4;
-	initializeGeneratorWithRandArray(k_initBuf, k_initBufLen);
-    return;
+        0x456U,
+		0x567U,
+		0x678U,
+		0x789U,
+		0x89AU
+	};
+	util2_initializeMersenneTwister19937Ver2_ExistingKeyBuffer(&k_initBuf);
+	return;
+}
+
+
+void util2_initializeMersenneTwister19937Ver2_ExistingKeyBuffer(
+    util2_mt19937ii_keyBuffer_t const* buf
+) {
+	initializeGeneratorWithRandArray( &(*buf)[0], util2_mt19937ii_keyBufferLength);
+	for(u8 i = 0; i < util2_mt19937ii_keyBufferLength; ++i) {
+		gs_maybeRecordedInitState[i] = (*buf)[i];
+	}
+	return;
+}
+
+void util2_getMersenneTwister19937Ver2_KeyBuffer(
+    util2_mt19937ii_keyBuffer_t* toSet
+) {
+	for(u8 i = 0; i < util2_mt19937ii_keyBufferLength; ++i) {
+		(*toSet)[i] = gs_maybeRecordedInitState[i];
+	}
+	return;
 }
 
 
 void util2_initializeMersenneTwister19937Ver2_RandomKeyBuffer(
     u32 const* keyBuf, 
-    i32 keyBufLength
+    u16 keyBufLength
 ) {
-    initializeGeneratorWithRandArray(keyBuf, keyBufLength);
+    initializeGeneratorWithRandArray(keyBuf, (i32)keyBufLength);
     return;
 }
 
@@ -180,7 +206,7 @@ double util2_generateRealOnHalfClosedInterval53Bits()
     initializes mt[N] with a seed
 */
 void initializeGeneratorWithRand(u32 s) {
-	gs_state[0] = s & 0xffffffffU;
+	gs_state[0] = s & UINT32_MASK;
 	for (gs_stateIdx = 1; gs_stateIdx < N; gs_stateIdx++) {
 		gs_state[gs_stateIdx] =
 		    (1812433253U * (gs_state[gs_stateIdx - 1] ^ (gs_state[gs_stateIdx - 1] >> 30)) + gs_stateIdx);
@@ -188,7 +214,7 @@ void initializeGeneratorWithRand(u32 s) {
 		/* In the previous versions, MSBs of the seed affect   */
 		/* only MSBs of the array mt[].                        */
 		/* 2002/01/09 modified by Makoto Matsumoto             */
-		gs_state[gs_stateIdx] &= 0xffffffffU;
+		gs_state[gs_stateIdx] &= UINT32_MASK;
 		/* for >32 bit machines */
 	}
 	gs_stateIdx       = 0;
@@ -211,7 +237,7 @@ void initializeGeneratorWithRandArray(const u32 init_key[], i32 key_length)
 	k = (N > key_length ? N : key_length);
 	for (; k; k--) {
 		gs_state[i] = (gs_state[i] ^ ((gs_state[i - 1] ^ (gs_state[i - 1] >> 30)) * 1664525U)) + init_key[j] + j; /* non linear */
-		gs_state[i] &= 0xffffffffU; /* for WORDSIZE > 32 machines */
+		gs_state[i] &= UINT32_MASK; /* for WORDSIZE > 32 machines */
 		i++;
 		j++;
 		if (i >= N) {
@@ -224,7 +250,7 @@ void initializeGeneratorWithRandArray(const u32 init_key[], i32 key_length)
 	}
 	for (k = N - 1; k; k--) {
 		gs_state[i] = (gs_state[i] ^ ((gs_state[i - 1] ^ (gs_state[i - 1] >> 30)) * 1566083941U)) - i; /* non linear */
-		gs_state[i] &= 0xffffffffU;                                                                             /* for WORDSIZE > 32 machines */
+		gs_state[i] &= UINT32_MASK;                                                                             /* for WORDSIZE > 32 machines */
 		i++;
 		if (i >= N) {
 			gs_state[0] = gs_state[N - 1];
@@ -232,7 +258,7 @@ void initializeGeneratorWithRandArray(const u32 init_key[], i32 key_length)
 		}
 	}
 
-	gs_state[0] = 0x80000000U; /* MSB is 1; assuring non-zero initial array */
+	gs_state[0] = UPPER_MASK; /* MSB is 1; assuring non-zero initial array */
 	gs_stateIdx = 0;
 	gs_randNumGenFunc = internal_case_1;
     return;
