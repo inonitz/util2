@@ -51,8 +51,8 @@ void UTIL2_API util2_initializeMersenneTwister19937Ver2_RandomKeyBuffer(
 );
 
 
-u32    UTIL2_API util2_generate31BitUnsignedInt();
-u32    UTIL2_API util2_generate32BitUnsignedInt();
+u32    UTIL2_API util2_generate31BitUnsignedInt(void);
+u32    UTIL2_API util2_generate32BitUnsignedInt(void);
 double UTIL2_API util2_generateRealOnClosedInterval(void);
 double UTIL2_API util2_generateRealOnHalfClosedInterval(void);
 double UTIL2_API util2_generateRealOnOpenInterval(void);

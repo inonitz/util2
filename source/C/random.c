@@ -5,20 +5,20 @@
 #include <time.h>
 
 
-static void initRNGOnceRand();
+static void initRNGOnceRand(void);
 
 
 /* Global State */
 static uint8_t gs_initEngine = 0;
 
 
-void randomInitDefault()
+void randomInitDefault(void)
 {
     initRNGOnceRand();
     return;
 }
 
-void randomInitFixedSeed()
+void randomInitFixedSeed(void)
 {
     if(likely(gs_initEngine)) {
         return;
@@ -32,7 +32,7 @@ void randomGetSeed(
     u32* seedBufferAddress, 
     u8   seedBufferAddressLength
 ) {
-    if(!gs_initEngine || seedBufferAddressLength < 8) {
+    if(!gs_initEngine || seedBufferAddressLength < util2_mt19937ii_keyBufferLength) {
         return;
     }
     util2_getMersenneTwister19937Ver2_KeyBuffer(
@@ -43,23 +43,23 @@ void randomGetSeed(
 
 
 
-u8  random8u()  { return random32u() & UINT8_MAX;  }
-u16 random16u() { return random32u() & UINT16_MAX; }
-u32 random32u()
+u8  random8u(void)  { return random32u() & UINT8_MAX;  }
+u16 random16u(void) { return random32u() & UINT16_MAX; }
+u32 random32u(void)
 {
     initRNGOnceRand();
     return util2_generate32BitUnsignedInt();
 }
 
-u64 random64u()
+u64 random64u(void)
 {
     initRNGOnceRand();
     return util2_generate32BitUnsignedInt() + util2_generate32BitUnsignedInt();
 }
 
-i8  random8i()  { return (i8)(random32i()  & UINT8_MAX);  }
-i16 random16i() { return (i16)(random32i() & UINT16_MAX); }
-i32 random32i()
+i8  random8i(void)  { return (i8)(random32i()  & UINT8_MAX);  }
+i16 random16i(void) { return (i16)(random32i() & UINT16_MAX); }
+i32 random32i(void)
 {
     initRNGOnceRand();
     const uint32_t k_highestBit = 0x80000000; /* 1 << 31 */
@@ -77,7 +77,7 @@ i32 random32i()
     return res;
 }
 
-i64 random64i()
+i64 random64i(void)
 {
     initRNGOnceRand();
     const uint64_t k_highestBit = 0x8000000000000000; /* 1 << 63 */
@@ -93,14 +93,14 @@ i64 random64i()
 }
 
 /* Normalized To Range [0, 1] */
-f32 random32f()
+f32 random32f(void)
 {
     initRNGOnceRand();
     return (f32)util2_generateRealOnClosedInterval();
 }
 
 /* Normalized To Range [0, 1] */
-f64 random64f()
+f64 random64f(void)
 {
     initRNGOnceRand();
     return util2_generateRealOnClosedInterval();
@@ -119,7 +119,7 @@ f64 random64f()
     1. https://stackoverflow.com/questions/1113409/attribute-constructor-equivalent-in-vc
     2. https://sillycross.github.io/2022/10/02/2022-10-02/
 */
-void initRNGOnceRand()
+void initRNGOnceRand(void)
 {
     if(likely(gs_initEngine)) {
         return;
@@ -128,7 +128,7 @@ void initRNGOnceRand()
     
     util2_mt19937ii_keyBuffer_t keyBuffer = {};
     srand(time(NULL));
-    for(uint8_t i = 0; i < __carraysize(keyBuffer); ++i) {
+    for(uint8_t i = 0; i < (uint8_t)__carraysize(keyBuffer); ++i) {
         keyBuffer[i] = rand();
     }
     util2_initializeMersenneTwister19937Ver2_ExistingKeyBuffer(&keyBuffer);

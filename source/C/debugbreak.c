@@ -1,7 +1,7 @@
 #include <util2/C/debugbreak.h>
 
 
-void util2_debugbreak()
+void util2_debugbreak(void)
 {
     UTIL2_INTERNAL_DEBUG_BREAKPOINT_MACRO();
 }

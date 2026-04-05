@@ -3,7 +3,6 @@
 #include "util2/C/util2_api.h"
 #include "util2/C/util2_extern.h"
 #include "util2/C/base_type.h"
-#include "util2_extern.h"
 
 
 UTIL2_EXTERNC_DECL_BEGIN

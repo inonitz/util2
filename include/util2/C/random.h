@@ -7,23 +7,23 @@
 
 UTIL2_EXTERNC_DECL_BEGIN
 
-void UTIL2_API randomInitDefault();
-void UTIL2_API randomInitFixedSeed();
+void UTIL2_API randomInitDefault(void);
+void UTIL2_API randomInitFixedSeed(void);
 void UTIL2_API randomGetSeed(
     u32* seedBufferAddress, 
     u8   seedBufferAddressLength
 );
 
-u8  UTIL2_API random8u();
-u16 UTIL2_API random16u();
-u32 UTIL2_API random32u();
-u64 UTIL2_API random64u();
-i8  UTIL2_API random8i();
-i16 UTIL2_API random16i();
-i32 UTIL2_API random32i();
-i64 UTIL2_API random64i();
-f32 UTIL2_API random32f(); /* Normalized To Range [0, 1] */
-f64 UTIL2_API random64f(); /* Normalized To Range [0, 1] */
+u8  UTIL2_API random8u(void);
+u16 UTIL2_API random16u(void);
+u32 UTIL2_API random32u(void);
+u64 UTIL2_API random64u(void);
+i8  UTIL2_API random8i(void);
+i16 UTIL2_API random16i(void);
+i32 UTIL2_API random32i(void);
+i64 UTIL2_API random64i(void);
+f32 UTIL2_API random32f(void); /* Normalized To Range [0, 1] */
+f64 UTIL2_API random64f(void); /* Normalized To Range [0, 1] */
 
 UTIL2_EXTERNC_DECL_END
 

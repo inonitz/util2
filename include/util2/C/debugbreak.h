@@ -65,7 +65,7 @@
 UTIL2_EXTERNC_DECL_BEGIN
 
 
-__force_inline inline void util2_inlinedbgbreak() {
+__force_inline inline void util2_inlinedbgbreak(void) {
     UTIL2_INTERNAL_DEBUG_BREAKPOINT_MACRO();
 }
 __force_inline inline void util2_inlinedbgbreakif(unsigned char condition) {
@@ -75,7 +75,7 @@ __force_inline inline void util2_inlinedbgbreakif(unsigned char condition) {
     return;
 }
 
-void UTIL2_API util2_debugbreak();
+void UTIL2_API util2_debugbreak(void);
 void UTIL2_API util2_debugbreakif(unsigned char condition); 
 
 

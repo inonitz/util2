@@ -44,7 +44,9 @@
 #   ifndef DISABLE_WARNING_DEPRECATED_FUNCTION
 #      define DISABLE_WARNING_DEPRECATED_FUNCTION           DISABLE_WARNING(-Wdeprecated-declarations)
 #   endif /* !defined DISABLE_WARNING_DEPRECATED_FUNCTION */
-
+#   ifndef DISABLE_WARNING_FORMAT_STR_NOT_LITERAL
+#      define DISABLE_WARNING_FORMAT_STR_NOT_LITERAL           DISABLE_WARNING(-Wformat-nonliteral)
+#   endif /* !defined DISABLE_WARNING_FORMAT_STR_NOT_LITERAL */
 
 #   ifdef likely
 #       pragma message WARN("Macro 'likely' already defined")
@@ -190,7 +192,9 @@
 #   ifndef DISABLE_WARNING_DEPRECATED_FUNCTION
 #      define DISABLE_WARNING_DEPRECATED_FUNCTION              DISABLE_WARNING(4996)
 #   endif /* !defined DISABLE_WARNING_DEPRECATED_FUNCTION */
-
+#   ifndef DISABLE_WARNING_FORMAT_STR_NOT_LITERAL
+#      define DISABLE_WARNING_FORMAT_STR_NOT_LITERAL
+#   endif /* !defined DISABLE_WARNING_FORMAT_STR_NOT_LITERAL */
 
 #   ifdef likely
 #       pragma message WARN("Macro 'likely' already defined")
@@ -362,6 +366,9 @@
 #   endif
 #   ifndef DISABLE_WARNING_DEPRECATED_FUNCTION
 #       define DISABLE_WARNING_DEPRECATED_FUNCTION
+#   endif
+#   ifndef DISABLE_WARNING_FORMAT_STR_NOT_LITERAL
+#      define DISABLE_WARNING_FORMAT_STR_NOT_LITERAL
 #   endif
 #   ifndef likely
 #       define likely

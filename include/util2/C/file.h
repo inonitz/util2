@@ -3,7 +3,6 @@
 #include "util2/C/util2_api.h"
 #include "util2/C/util2_extern.h"
 #include "util2/C/base_type.h"
-#include "util2_api.h"
 
 
 UTIL2_EXTERNC_DECL_BEGIN
@@ -26,7 +25,8 @@ UTIL2_API bool_t util2_load_file(
 	pass 'size'=0 to know how much memory to allocate for the 'out' string
 	if 'size' of 'out' is too small then 'size' will be updated
 */
-UTIL2_API UTIL2_DEPRECATED_MSG("NOT IMPLEMENTED FOR C") void util2_current_path(
+UTIL2_DEPRECATED_MSG("NOT IMPLEMENTED FOR C")
+UTIL2_API void util2_current_path(
 	u32*  size,
 	char* out
 );
