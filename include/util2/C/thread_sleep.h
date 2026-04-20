@@ -5,7 +5,7 @@
 #include "util2/C/util2_extern.h"
 
 
-UTIL2_API UTIL2_EXTERNC void util2_thread_sleep(i32 duration_nanoseconds);
+UTIL2_API UTIL2_EXTERNC i32 util2_thread_sleep(i32 duration_nanoseconds);
 
 
 #endif /* __UTIL2_DEFINITION_THREAD_SLEEP__ */

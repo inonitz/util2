@@ -22,24 +22,50 @@
 #endif
 
 
-
-
-void util2_thread_sleep(i32 duration_nanoseconds)
+i32 util2_thread_sleep(i32 duration_nanoseconds)
 {
-    const struct timespec sleep_request = (struct timespec){
-        .tv_sec = 0,
-        .tv_nsec = duration_nanoseconds
+    const i32 kNanosecondsLimit = 1000 * 1000 * 1000; /* Exactly 1 second */
+    /* 
+        Given 100ns per loop iteration, comes out to ~399 seconds 
+        At that point, just use microsleep/normal sleep
+    */
+    const u64 kTimeOutCounterLimit = 4294967295;
+
+    struct timespec sleep_request = (struct timespec){
+        .tv_sec = duration_nanoseconds / kNanosecondsLimit,
+        .tv_nsec = duration_nanoseconds % kNanosecondsLimit
     };
+    struct timespec remaining_sleep = (struct timespec){
+        .tv_sec = 0,
+        .tv_nsec = 0
+    };
+    u64 timeOutCounter = 0;
+    i32 status = 0xff;
 
 
 #if __UTIL2_DEFINITION_THREAD_SLEEP_USE_POSIX__ == 1
-    nanosleep(&sleep_request, NULL);
+    status = nanosleep(&sleep_request, &remaining_sleep); /* Early Exit */
+    while( status < 0 && (timeOutCounter < kTimeOutCounterLimit) ) {
+        sleep_request = remaining_sleep;
+        remaining_sleep = (struct timespec){0, 0};
+        ++timeOutCounter;
+
+        status = nanosleep(&sleep_request, &remaining_sleep);
+    }
 #else
-    thrd_sleep(&sleep_request, NULL);
+    status = thrd_sleep(&sleep_request, &remaining_sleep); /* Early Exit */
+    while( status < 0 && (timeOutCounter < kTimeOutCounterLimit) ) {
+        sleep_request = remaining_sleep;
+        remaining_sleep = (struct timespec){0, 0};
+        ++timeOutCounter;
+
+        status = thrd_sleep(&sleep_request, &remaining_sleep);
+    }
 #endif
 
 
-    return;
+    status = (status == 0) && (timeOutCounter < kTimeOutCounterLimit);
+    return status ? 0 : -1;
 }
 
 
