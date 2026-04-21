@@ -3,7 +3,6 @@
 #include "util2/C/static_assert.h"
 #include "util2/C/aligned_malloc.h"
 #include "util2/C/stb_image.h"
-#include <string.h>
 #if defined __AVX2__
 #	include <immintrin.h>
 #elif defined __SSE4_1__

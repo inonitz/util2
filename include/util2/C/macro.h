@@ -443,7 +443,7 @@
 #    define __carraysize(__c_array) ( sizeof(__c_array) / sizeof(__c_array[0]) )
 #endif
 #ifndef __ccast
-#    define __ccast(type, val) ((type)val)
+#    define __ccast(type, val) ((type)(val))
 #endif
 #ifdef __cplusplus
 #    ifndef __scast
@@ -453,11 +453,18 @@
 #        define __rcast(type, val) reinterpret_cast<type>((val))
 #    endif
 #    ifndef isaligned
-#        define isaligned(ptr, alignment) boolean( (  __rcast(unsigned long long, ptr) & ( __scast(unsigned long long, alignment) - 1llu )  ) == 0 )
+#        define isaligned(ptr, alignment) boolean( (  __rcast(unsigned long long, (ptr)) & ( __scast(unsigned long long, (alignment)) - 1llu )  ) == 0 )
 #    endif
 #else
-#    define __scast(type, val) (__ccast(type, val))
-#    define __rcast(type, val) (__ccast(type, val))
+#    ifndef __scast
+#        define __scast(type, val) __ccast(type, (val))
+#    endif
+#    ifndef __rcast
+#        define __rcast(type, val) __ccast(type, (val))
+#    endif
+#    ifndef isaligned
+#        define isaligned(ptr, alignment) boolean( (  __rcast(unsigned long long, (ptr)) & ( __scast(unsigned long long, (alignment)) - 1llu )  ) == 0 )
+#    endif
 #endif
 
 
