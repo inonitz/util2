@@ -22,7 +22,7 @@ __force_inline inline u64 util2_count_trailing_zeros(u64 ll)
 #   include <intrin.h>
 
 	u64 out;
-	_BitScanReverse64(&out, ll);
+	_BitScanForward64(&out, ll);
 	return out;
 
 #else
