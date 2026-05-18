@@ -2,6 +2,7 @@
 #define __UTIL2_TIME_HEADER__
 #include "util2/C/util2_api.h"
 #include "util2/C/base_type.h"
+#include "util2/C/macro.h"
 #include <chrono>
 
 
@@ -33,12 +34,12 @@ template<typename Before, typename After> auto duration_cast(Before const& timep
     return std::chrono::duration_cast<After>(timepoint);
 }
 
-template< typename _From > auto to_milli(_From const& timepoint) {
-    return duration_cast<_From, millisecond>(timepoint);
+template< typename From > auto to_milli(From const& timepoint) {
+    return duration_cast<From, millisecond>(timepoint);
 }
 
-template< typename _From > auto to_nano(_From const& timepoint) {
-    return duration_cast<_From, nanosecond>(timepoint);
+template< typename From > auto to_nano(From const& timepoint) {
+    return duration_cast<From, nanosecond>(timepoint);
 }
 
 
@@ -52,16 +53,15 @@ public:
     using timep_dt = DT;
 
 
-    void tick() { 
+    __force_inline void tick() { 
         _end = timep_t{}; 
         _start = ClockT::now(); 
     }    
-    void tock() { _end = ClockT::now(); }
+    __force_inline void tock() { _end = ClockT::now(); }
     
 
     template <class T = DT> 
-    auto duration() const { 
-        static_assert(_end == timep_t{}, "tock before reporting");
+    __force_inline [[nodiscard]] auto duration() const { 
         return std::chrono::duration_cast<T>(_end - _start); 
     }
 private:
