@@ -61,7 +61,7 @@ public:
     
 
     template <class T = DT> 
-    __force_inline [[nodiscard]] auto duration() const { 
+    [[nodiscard]] __force_inline auto duration() const { 
         return std::chrono::duration_cast<T>(_end - _start); 
     }
 private:
@@ -95,8 +95,9 @@ public:
 
     template<typename T> T value_units(f64 HowManyUnitsIn1Second) const
     {
-        f64 unitConvert = 1e-9 * HowManyUnitsIn1Second;
-        return static_cast<T>(get_underlying_value_choose<i64, false>() * unitConvert);
+        constexpr auto kCvtNsToSeconds = 1e-9;
+        f64 unitConvert = kCvtNsToSeconds * HowManyUnitsIn1Second;
+        return static_cast<T>(get_underlying_value_choose<signed long long, false>() * unitConvert);
     }
 
 
@@ -119,7 +120,7 @@ private:
         if constexpr (std::is_same<T, i64>::value) {
             return diff.count();
         } else {
-            return diff;
+            return __scast(T, diff.count());
         }
     }
 };
