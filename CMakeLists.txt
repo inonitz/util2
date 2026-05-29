@@ -77,24 +77,24 @@ set(HEADERS
 
 
 if(BUILD_SHARED_LIBS)
-    add_library(util2 SHARED)
-    target_compile_definitions(util2 PUBLIC UTIL2_EXPORTS)
+    add_library(${PROJECT_NAME} SHARED)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC UTIL2_EXPORTS)
 else()
-    add_library(util2 STATIC)
-    target_compile_definitions(util2 PUBLIC UTIL2_STATIC_DEFINE)
+    add_library(${PROJECT_NAME} STATIC)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC UTIL2_STATIC_DEFINE)
 endif()
 
-add_library(UTIL2::util2 ALIAS util2)
-target_include_directories(util2 PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_sources(util2 PRIVATE ${SOURCES})
-target_sources(util2 PRIVATE ${HEADERS})
+add_library(UTIL2::util2 ALIAS ${PROJECT_NAME})
+target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_sources(${PROJECT_NAME} PRIVATE ${SOURCES})
+target_sources(${PROJECT_NAME} PRIVATE ${HEADERS})
 
 
 # The minimum C/C++ versions required for the library
-target_compile_features(util2 PUBLIC cxx_std_17)
-target_compile_features(util2 PUBLIC c_std_11)
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+target_compile_features(${PROJECT_NAME} PUBLIC c_std_11)
 if(BUILD_SHARED_LIBS)
-    set_target_properties(util2 PROPERTIES 
+    set_target_properties(${PROJECT_NAME} PROPERTIES 
         C_VISIBILITY_PRESET       hidden
         CXX_VISIBILITY_PRESET     hidden
         VISIBILITY_INLINES_HIDDEN ON
@@ -131,8 +131,8 @@ if(DEFINED CMAKE_SYSTEM_NAME)
     endif()
 
 
-    target_sources(util2 PRIVATE ${PLATFORM_SPECIFIC_FILES})
-    target_link_libraries(util2 PRIVATE ${PLATFORM_SPECIFIC_LINKING})
+    target_sources(${PROJECT_NAME} PRIVATE ${PLATFORM_SPECIFIC_FILES})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${PLATFORM_SPECIFIC_LINKING})
 else()
     message(STATUS "\n
         [util2] -> 

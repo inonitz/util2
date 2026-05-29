@@ -34,12 +34,16 @@
     is due to clangd incorrectly linting <stdatomic.h> on my windows 10 machine 
     currently waiting for 'BuiltinHeaders' feature on clangd21 to see if fixed
 */
-UTIL2_API UTIL2_EXTERNC void util2_marker_flag(
+UTIL2_EXTERNC_DECL_BEGIN
+
+UTIL2_API void util2_marker_flag(
     const char*   file_macro,
     unsigned long line_macro,
     const char*   formatstr,
     ...
 );
+
+UTIL2_EXTERNC_DECL_END
 
 
 // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-macro-usage)
