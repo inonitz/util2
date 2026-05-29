@@ -44,8 +44,9 @@
 #	error "ifcrashdo should not be defined before this point. You must have mixed ifcrash.hpp & ifcrash2.h"
 #endif
 
+UTIL2_EXTERNC_DECL_BEGIN
 
-UTIL2_API UTIL2_EXTERNC void util2_ifcrash2(
+UTIL2_API void util2_ifcrash2(
     const char*  ifcrash_type_str,
     const char*  file_macro,
     u64          line_macro,
@@ -54,6 +55,8 @@ UTIL2_API UTIL2_EXTERNC void util2_ifcrash2(
     const char*  formatstr,
     ...
 );
+
+UTIL2_EXTERNC_DECL_END
 
 
 #   define ifcrash(condition) 			    util2_ifcrash2("",     __FILE__, __LINE__, (condition), BOOL_TRUE,  "",  "")
