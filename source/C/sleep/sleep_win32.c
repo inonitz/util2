@@ -6,10 +6,10 @@
 #include <windows.h>
 
 
-static HANDLE   s_wintimer        = NULL;
-static uint64_t s_wintimerfreq    = 0;
-static double   s_wintimerinvfreq = 0;
-static mtx_t    s_exitMutex;
+static HANDLE        s_wintimer        = NULL;
+static uint64_t      s_wintimerfreq    = 0;
+static double        s_wintimerinvfreq = 0;
+static tthread_mtx_t s_exitMutex;
 
 
 static void closeTimerHandle() {
@@ -17,25 +17,36 @@ static void closeTimerHandle() {
     return;
 }
 
-void microsleep_win32(uint32_t microseconds) {
-    Sleep(microseconds);
+void millisleep_win32(uint32_t milliseconds) {
+    Sleep(milliseconds);
     return;
 }
 
-
-void millisleep_win32(uint32_t milliseconds) {
+void microsleep_win32(uint32_t microseconds) {
+    const uint32_t kMicrosecondToNanosecond = 1000;
+    const uint32_t kRequiredTimerIntervalWin32 = 100;
+    int status = BOOL_TRUE;
     LARGE_INTEGER ft;
-    ft.QuadPart = -1 * __scast(int64_t, milliseconds);  // '-' using relative time
+
+    /* to nanoseconds, then to 100ns intervals per the win32 spec */
+    /* https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-setwaitabletimer */
+    microseconds = (microseconds * kMicrosecondToNanosecond) / kRequiredTimerIntervalWin32;
+    ft.QuadPart = -1 * __scast(int64_t, microseconds);  // '-' using relative time
 
     
     if(unlikely(s_wintimer == NULL)) {
         /* first time we pay the price for the branch, next time will be fine */
-        mtx_init(&s_exitMutex, mtx_plain | mtx_recursive);
         s_wintimer = CreateWaitableTimer(NULL, TRUE, NULL);
-        if(atexit(closeTimerHandle) != 0) {
-            while(mtx_trylock(&s_exitMutex) != thrd_success) {}
+
+        if(s_wintimer == NULL || atexit(closeTimerHandle) != 0) { /* Unsatisfied Allocation */
+            if(tthread_mtx_init(&s_exitMutex, tthread_mtx_plain | tthread_mtx_recursive) 
+                != tthread_thrd_success) {
+                exit(-1); /* Fucking Catastrophic Condition, Only god knows when this'll hit */
+            }
+            /* Thread Safe Exit */
+            while(tthread_mtx_trylock(&s_exitMutex) != tthread_thrd_success) {}
             exit(-1);
-            mtx_unlock(&s_exitMutex);
+            tthread_mtx_unlock(&s_exitMutex);
         }
     }
 

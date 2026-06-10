@@ -53,12 +53,12 @@ extern "C" {
 #endif
 
 
-int mtx_init(mtx_t *mtx, int type)
+int tthread_mtx_init(tthread_mtx_t *mtx, int type)
 {
 #if defined(_TTHREAD_WIN32_)
   mtx->mAlreadyLocked = FALSE;
-  mtx->mRecursive = type & mtx_recursive;
-  mtx->mTimed = type & mtx_timed;
+  mtx->mRecursive = type & tthread_mtx_recursive;
+  mtx->mTimed = type & tthread_mtx_timed;
   if (!mtx->mTimed)
   {
     InitializeCriticalSection(&(mtx->mHandle.cs));
@@ -68,25 +68,25 @@ int mtx_init(mtx_t *mtx, int type)
     mtx->mHandle.mut = CreateMutex(NULL, FALSE, NULL);
     if (mtx->mHandle.mut == NULL)
     {
-      return thrd_error;
+      return tthread_thrd_error;
     }
   }
-  return thrd_success;
+  return tthread_thrd_success;
 #else
   int ret;
   pthread_mutexattr_t attr;
   pthread_mutexattr_init(&attr);
-  if (type & mtx_recursive)
+  if (type & tthread_mtx_recursive)
   {
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
   }
   ret = pthread_mutex_init(mtx, &attr);
   pthread_mutexattr_destroy(&attr);
-  return ret == 0 ? thrd_success : thrd_error;
+  return ret == 0 ? tthread_thrd_success : tthread_thrd_error;
 #endif
 }
 
-void mtx_destroy(mtx_t *mtx)
+void tthread_mtx_destroy(tthread_mtx_t *mtx)
 {
 #if defined(_TTHREAD_WIN32_)
   if (!mtx->mTimed)
@@ -102,7 +102,7 @@ void mtx_destroy(mtx_t *mtx)
 #endif
 }
 
-int mtx_lock(mtx_t *mtx)
+int tthread_mtx_lock(tthread_mtx_t *mtx)
 {
 #if defined(_TTHREAD_WIN32_)
   if (!mtx->mTimed)
@@ -117,7 +117,7 @@ int mtx_lock(mtx_t *mtx)
         break;
       case WAIT_ABANDONED:
       default:
-        return thrd_error;
+        return tthread_thrd_error;
     }
   }
 
@@ -126,13 +126,13 @@ int mtx_lock(mtx_t *mtx)
     while(mtx->mAlreadyLocked) Sleep(1); /* Simulate deadlock... */
     mtx->mAlreadyLocked = TRUE;
   }
-  return thrd_success;
+  return tthread_thrd_success;
 #else
-  return pthread_mutex_lock(mtx) == 0 ? thrd_success : thrd_error;
+  return pthread_mutex_lock(mtx) == 0 ? tthread_thrd_success : tthread_thrd_error;
 #endif
 }
 
-int mtx_timedlock(mtx_t *mtx, const struct timespec *ts)
+int tthread_mtx_timedlock(tthread_mtx_t *mtx, const struct timespec *ts)
 {
 #if defined(_TTHREAD_WIN32_)
   struct timespec current_ts;
@@ -140,7 +140,7 @@ int mtx_timedlock(mtx_t *mtx, const struct timespec *ts)
 
   if (!mtx->mTimed)
   {
-    return thrd_error;
+    return tthread_thrd_error;
   }
 
   timespec_get(&current_ts, TIME_UTC);
@@ -163,10 +163,10 @@ int mtx_timedlock(mtx_t *mtx, const struct timespec *ts)
     case WAIT_OBJECT_0:
       break;
     case WAIT_TIMEOUT:
-      return thrd_timedout;
+      return tthread_thrd_timeout;
     case WAIT_ABANDONED:
     default:
-      return thrd_error;
+      return tthread_thrd_error;
   }
 
   if (!mtx->mRecursive)
@@ -175,15 +175,15 @@ int mtx_timedlock(mtx_t *mtx, const struct timespec *ts)
     mtx->mAlreadyLocked = TRUE;
   }
 
-  return thrd_success;
+  return tthread_thrd_success;
 #elif defined(_POSIX_TIMEOUTS) && (_POSIX_TIMEOUTS >= 200112L) && defined(_POSIX_THREADS) && (_POSIX_THREADS >= 200112L)
   switch (pthread_mutex_timedlock(mtx, ts)) {
     case 0:
-      return thrd_success;
+      return tthread_thrd_success;
     case ETIMEDOUT:
       return thrd_timedout;
     default:
-      return thrd_error;
+      return tthread_thrd_error;
   }
 #else
   int rc;
@@ -217,36 +217,36 @@ int mtx_timedlock(mtx_t *mtx, const struct timespec *ts)
 
   switch (rc) {
     case 0:
-      return thrd_success;
+      return tthread_thrd_success;
     case ETIMEDOUT:
     case EBUSY:
       return thrd_timedout;
     default:
-      return thrd_error;
+      return tthread_thrd_error;
   }
 #endif
 }
 
-int mtx_trylock(mtx_t *mtx)
+int tthread_mtx_trylock(tthread_mtx_t *mtx)
 {
 #if defined(_TTHREAD_WIN32_)
   int ret;
 
   if (!mtx->mTimed)
   {
-    ret = TryEnterCriticalSection(&(mtx->mHandle.cs)) ? thrd_success : thrd_busy;
+    ret = TryEnterCriticalSection(&(mtx->mHandle.cs)) ? tthread_thrd_success : tthread_thrd_busy;
   }
   else
   {
-    ret = (WaitForSingleObject(mtx->mHandle.mut, 0) == WAIT_OBJECT_0) ? thrd_success : thrd_busy;
+    ret = (WaitForSingleObject(mtx->mHandle.mut, 0) == WAIT_OBJECT_0) ? tthread_thrd_success : tthread_thrd_busy;
   }
 
-  if ((!mtx->mRecursive) && (ret == thrd_success))
+  if ((!mtx->mRecursive) && (ret == tthread_thrd_success))
   {
     if (mtx->mAlreadyLocked)
     {
       LeaveCriticalSection(&(mtx->mHandle.cs));
-      ret = thrd_busy;
+      ret = tthread_thrd_busy;
     }
     else
     {
@@ -255,11 +255,11 @@ int mtx_trylock(mtx_t *mtx)
   }
   return ret;
 #else
-  return (pthread_mutex_trylock(mtx) == 0) ? thrd_success : thrd_busy;
+  return (pthread_mutex_trylock(mtx) == 0) ? tthread_thrd_success : thrd_busy;
 #endif
 }
 
-int mtx_unlock(mtx_t *mtx)
+int tthread_mtx_unlock(tthread_mtx_t *mtx)
 {
 #if defined(_TTHREAD_WIN32_)
   mtx->mAlreadyLocked = FALSE;
@@ -271,12 +271,12 @@ int mtx_unlock(mtx_t *mtx)
   {
     if (!ReleaseMutex(mtx->mHandle.mut))
     {
-      return thrd_error;
+      return tthread_thrd_error;
     }
   }
-  return thrd_success;
+  return tthread_thrd_success;
 #else
-  return pthread_mutex_unlock(mtx) == 0 ? thrd_success : thrd_error;;
+  return pthread_mutex_unlock(mtx) == 0 ? tthread_thrd_success : tthread_thrd_error;;
 #endif
 }
 
@@ -285,7 +285,7 @@ int mtx_unlock(mtx_t *mtx)
 #define _CONDITION_EVENT_ALL 1
 #endif
 
-int cnd_init(cnd_t *cond)
+int tthread_cnd_init(tthread_cnd_t *cond)
 {
 #if defined(_TTHREAD_WIN32_)
   cond->mWaitersCount = 0;
@@ -298,23 +298,23 @@ int cnd_init(cnd_t *cond)
   if (cond->mEvents[_CONDITION_EVENT_ONE] == NULL)
   {
     cond->mEvents[_CONDITION_EVENT_ALL] = NULL;
-    return thrd_error;
+    return tthread_thrd_error;
   }
   cond->mEvents[_CONDITION_EVENT_ALL] = CreateEvent(NULL, TRUE, FALSE, NULL);
   if (cond->mEvents[_CONDITION_EVENT_ALL] == NULL)
   {
     CloseHandle(cond->mEvents[_CONDITION_EVENT_ONE]);
     cond->mEvents[_CONDITION_EVENT_ONE] = NULL;
-    return thrd_error;
+    return tthread_thrd_error;
   }
 
-  return thrd_success;
+  return tthread_thrd_success;
 #else
-  return pthread_cond_init(cond, NULL) == 0 ? thrd_success : thrd_error;
+  return pthread_cond_init(cond, NULL) == 0 ? tthread_thrd_success : tthread_thrd_error;
 #endif
 }
 
-void cnd_destroy(cnd_t *cond)
+void tthread_cnd_destroy(tthread_cnd_t *cond)
 {
 #if defined(_TTHREAD_WIN32_)
   if (cond->mEvents[_CONDITION_EVENT_ONE] != NULL)
@@ -331,7 +331,7 @@ void cnd_destroy(cnd_t *cond)
 #endif
 }
 
-int cnd_signal(cnd_t *cond)
+int tthread_cnd_signal(tthread_cnd_t *cond)
 {
 #if defined(_TTHREAD_WIN32_)
   int haveWaiters;
@@ -346,17 +346,17 @@ int cnd_signal(cnd_t *cond)
   {
     if (SetEvent(cond->mEvents[_CONDITION_EVENT_ONE]) == 0)
     {
-      return thrd_error;
+      return tthread_thrd_error;
     }
   }
 
-  return thrd_success;
+  return tthread_thrd_success;
 #else
-  return pthread_cond_signal(cond) == 0 ? thrd_success : thrd_error;
+  return pthread_cond_signal(cond) == 0 ? tthread_thrd_success : tthread_thrd_error;
 #endif
 }
 
-int cnd_broadcast(cnd_t *cond)
+int tthread_cnd_broadcast(tthread_cnd_t *cond)
 {
 #if defined(_TTHREAD_WIN32_)
   int haveWaiters;
@@ -371,18 +371,18 @@ int cnd_broadcast(cnd_t *cond)
   {
     if (SetEvent(cond->mEvents[_CONDITION_EVENT_ALL]) == 0)
     {
-      return thrd_error;
+      return tthread_thrd_error;
     }
   }
 
-  return thrd_success;
+  return tthread_thrd_success;
 #else
-  return pthread_cond_broadcast(cond) == 0 ? thrd_success : thrd_error;
+  return pthread_cond_broadcast(cond) == 0 ? tthread_thrd_success : tthread_thrd_error;
 #endif
 }
 
 #if defined(_TTHREAD_WIN32_)
-static int _cnd_timedwait_win32(cnd_t *cond, mtx_t *mtx, DWORD timeout)
+static int _cnd_timedwait_win32(tthread_cnd_t *cond, tthread_mtx_t *mtx, DWORD timeout)
 {
   DWORD result;
   int lastWaiter;
@@ -394,7 +394,7 @@ static int _cnd_timedwait_win32(cnd_t *cond, mtx_t *mtx, DWORD timeout)
 
   /* Release the mutex while waiting for the condition (will decrease
      the number of waiters when done)... */
-  mtx_unlock(mtx);
+  tthread_mtx_unlock(mtx);
 
   /* Wait for either event to become signaled due to cnd_signal() or
      cnd_broadcast() being called */
@@ -402,14 +402,14 @@ static int _cnd_timedwait_win32(cnd_t *cond, mtx_t *mtx, DWORD timeout)
   if (result == WAIT_TIMEOUT)
   {
     /* The mutex is locked again before the function returns, even if an error occurred */
-    mtx_lock(mtx);
-    return thrd_timedout;
+    tthread_mtx_lock(mtx);
+    return tthread_thrd_timeout;
   }
   else if (result == WAIT_FAILED)
   {
     /* The mutex is locked again before the function returns, even if an error occurred */
-    mtx_lock(mtx);
-    return thrd_error;
+    tthread_mtx_lock(mtx);
+    return tthread_thrd_error;
   }
 
   /* Check if we are the last waiter */
@@ -425,28 +425,28 @@ static int _cnd_timedwait_win32(cnd_t *cond, mtx_t *mtx, DWORD timeout)
     if (ResetEvent(cond->mEvents[_CONDITION_EVENT_ALL]) == 0)
     {
       /* The mutex is locked again before the function returns, even if an error occurred */
-      mtx_lock(mtx);
-      return thrd_error;
+      tthread_mtx_lock(mtx);
+      return tthread_thrd_error;
     }
   }
 
   /* Re-acquire the mutex */
-  mtx_lock(mtx);
+  tthread_mtx_lock(mtx);
 
-  return thrd_success;
+  return tthread_thrd_success;
 }
 #endif
 
-int cnd_wait(cnd_t *cond, mtx_t *mtx)
+int tthread_cnd_wait(tthread_cnd_t *cond, tthread_mtx_t *mtx)
 {
 #if defined(_TTHREAD_WIN32_)
   return _cnd_timedwait_win32(cond, mtx, INFINITE);
 #else
-  return pthread_cond_wait(cond, mtx) == 0 ? thrd_success : thrd_error;
+  return pthread_cond_wait(cond, mtx) == 0 ? tthread_thrd_success : tthread_thrd_error;
 #endif
 }
 
-int cnd_timedwait(cnd_t *cond, mtx_t *mtx, const struct timespec *ts)
+int tthread_cnd_timedwait(tthread_cnd_t *cond, tthread_mtx_t *mtx, const struct timespec *ts)
 {
 #if defined(_TTHREAD_WIN32_)
   struct timespec now;
@@ -459,7 +459,7 @@ int cnd_timedwait(cnd_t *cond, mtx_t *mtx, const struct timespec *ts)
     return _cnd_timedwait_win32(cond, mtx, delta);
   }
   else
-    return thrd_error;
+    return tthread_thrd_error;
 #else
   int ret;
   ret = pthread_cond_timedwait(cond, mtx, ts);
@@ -467,18 +467,18 @@ int cnd_timedwait(cnd_t *cond, mtx_t *mtx, const struct timespec *ts)
   {
     return thrd_timedout;
   }
-  return ret == 0 ? thrd_success : thrd_error;
+  return ret == 0 ? tthread_thrd_success : tthread_thrd_error;
 #endif
 }
 
 #if defined(_TTHREAD_WIN32_)
 struct TinyCThreadTSSData {
   void* value;
-  tss_t key;
+  tthread_tss_t key;
   struct TinyCThreadTSSData* next;
 };
 
-static tss_dtor_t _tinycthread_tss_dtors[1088] = { NULL, };
+static tthread_tss_dtor_t _tinycthread_tss_dtors[1088] = { NULL, };
 
 static _Thread_local struct TinyCThreadTSSData* _tinycthread_tss_head = NULL;
 static _Thread_local struct TinyCThreadTSSData* _tinycthread_tss_tail = NULL;
@@ -588,14 +588,14 @@ static void * _thrd_wrapper_function(void * aArg)
 #endif
 }
 
-int thrd_create(thrd_t *thr, thrd_start_t func, void *arg)
+int tthread_thrd_create(tthread_thrd_t *thr, thrd_start_t func, void *arg)
 {
   /* Fill out the thread startup information (passed to the thread wrapper,
      which will eventually free it) */
   _thread_start_info* ti = (_thread_start_info*)malloc(sizeof(_thread_start_info));
   if (ti == NULL)
   {
-    return thrd_nomem;
+    return tthread_thrd_nomem;
   }
   ti->mFunction = func;
   ti->mArg = arg;
@@ -614,13 +614,13 @@ int thrd_create(thrd_t *thr, thrd_start_t func, void *arg)
   if(!*thr)
   {
     free(ti);
-    return thrd_error;
+    return tthread_thrd_error;
   }
 
-  return thrd_success;
+  return tthread_thrd_success;
 }
 
-thrd_t thrd_current(void)
+tthread_thrd_t tthread_thrd_current(void)
 {
 #if defined(_TTHREAD_WIN32_)
   return GetCurrentThread();
@@ -629,17 +629,17 @@ thrd_t thrd_current(void)
 #endif
 }
 
-int thrd_detach(thrd_t thr)
+int tthread_thrd_detach(tthread_thrd_t thr)
 {
 #if defined(_TTHREAD_WIN32_)
   /* https://stackoverflow.com/questions/12744324/how-to-detach-a-thread-on-windows-c#answer-12746081 */
-  return CloseHandle(thr) != 0 ? thrd_success : thrd_error;
+  return CloseHandle(thr) != 0 ? tthread_thrd_success : tthread_thrd_error;
 #else
-  return pthread_detach(thr) == 0 ? thrd_success : thrd_error;
+  return pthread_detach(thr) == 0 ? tthread_thrd_success : tthread_thrd_error;
 #endif
 }
 
-int thrd_equal(thrd_t thr0, thrd_t thr1)
+int tthread_thrd_equal(tthread_thrd_t thr0, tthread_thrd_t thr1)
 {
 #if defined(_TTHREAD_WIN32_)
   return GetThreadId(thr0) == GetThreadId(thr1);
@@ -648,7 +648,7 @@ int thrd_equal(thrd_t thr0, thrd_t thr1)
 #endif
 }
 
-void thrd_exit(int res)
+void tthread_thrd_exit(int res)
 {
 #if defined(_TTHREAD_WIN32_)
   if (_tinycthread_tss_head != NULL)
@@ -662,14 +662,14 @@ void thrd_exit(int res)
 #endif
 }
 
-int thrd_join(thrd_t thr, int *res)
+int tthread_thrd_join(tthread_thrd_t thr, int *res)
 {
 #if defined(_TTHREAD_WIN32_)
   DWORD dwRes;
 
   if (WaitForSingleObject(thr, INFINITE) == WAIT_FAILED)
   {
-    return thrd_error;
+    return tthread_thrd_error;
   }
   if (res != NULL)
   {
@@ -679,7 +679,7 @@ int thrd_join(thrd_t thr, int *res)
     }
     else
     {
-      return thrd_error;
+      return tthread_thrd_error;
     }
   }
   CloseHandle(thr);
@@ -687,17 +687,17 @@ int thrd_join(thrd_t thr, int *res)
   void *pres;
   if (pthread_join(thr, &pres) != 0)
   {
-    return thrd_error;
+    return tthread_thrd_error;
   }
   if (res != NULL)
   {
     *res = (int)(intptr_t)pres;
   }
 #endif
-  return thrd_success;
+  return tthread_thrd_success;
 }
 
-int thrd_sleep(const struct timespec *duration, struct timespec *remaining)
+int tthread_thrd_sleep(const struct timespec *duration, struct timespec *remaining)
 {
 #if !defined(_TTHREAD_WIN32_)
   int res = nanosleep(duration, remaining);
@@ -738,7 +738,7 @@ int thrd_sleep(const struct timespec *duration, struct timespec *remaining)
 #endif
 }
 
-void thrd_yield(void)
+void tthread_thrd_yield(void)
 {
 #if defined(_TTHREAD_WIN32_)
   Sleep(0);
@@ -747,25 +747,25 @@ void thrd_yield(void)
 #endif
 }
 
-int tss_create(tss_t *key, tss_dtor_t dtor)
+int tthread_tss_create(tthread_tss_t *key, tthread_tss_dtor_t dtor)
 {
 #if defined(_TTHREAD_WIN32_)
   *key = TlsAlloc();
   if (*key == TLS_OUT_OF_INDEXES)
   {
-    return thrd_error;
+    return tthread_thrd_error;
   }
   _tinycthread_tss_dtors[*key] = dtor;
 #else
   if (pthread_key_create(key, dtor) != 0)
   {
-    return thrd_error;
+    return tthread_thrd_error;
   }
 #endif
-  return thrd_success;
+  return tthread_thrd_success;
 }
 
-void tss_delete(tss_t key)
+void tthread_tss_delete(tthread_tss_t key)
 {
 #if defined(_TTHREAD_WIN32_)
   struct TinyCThreadTSSData* data = (struct TinyCThreadTSSData*) TlsGetValue (key);
@@ -802,7 +802,7 @@ void tss_delete(tss_t key)
 #endif
 }
 
-void *tss_get(tss_t key)
+void* tthread_tss_get(tthread_tss_t key)
 {
 #if defined(_TTHREAD_WIN32_)
   struct TinyCThreadTSSData* data = (struct TinyCThreadTSSData*)TlsGetValue(key);
@@ -816,7 +816,7 @@ void *tss_get(tss_t key)
 #endif
 }
 
-int tss_set(tss_t key, void *val)
+int tthread_tss_set(tthread_tss_t key, void *val)
 {
 #if defined(_TTHREAD_WIN32_)
   struct TinyCThreadTSSData* data = (struct TinyCThreadTSSData*)TlsGetValue(key);
@@ -825,7 +825,7 @@ int tss_set(tss_t key, void *val)
     data = (struct TinyCThreadTSSData*)malloc(sizeof(struct TinyCThreadTSSData));
     if (data == NULL)
     {
-      return thrd_error;
+      return tthread_thrd_error;
 	}
 
     data->value = NULL;
@@ -849,17 +849,17 @@ int tss_set(tss_t key, void *val)
     if (!TlsSetValue(key, data))
     {
       free (data);
-	  return thrd_error;
+      return tthread_thrd_error;
     }
   }
   data->value = val;
 #else
   if (pthread_setspecific(key, val) != 0)
   {
-    return thrd_error;
+    return tthread_thrd_error;
   }
 #endif
-  return thrd_success;
+  return tthread_thrd_success;
 }
 
 #if defined(_TTHREAD_EMULATE_TIMESPEC_GET_)
@@ -893,7 +893,7 @@ int _tthread_timespec_get(struct timespec *ts, int base)
 #endif /* _TTHREAD_EMULATE_TIMESPEC_GET_ */
 
 #if defined(_TTHREAD_WIN32_)
-void call_once(once_flag *flag, void (*func)(void))
+void tthread_call_once(tthread_once_flag* flag, void (*func)(void))
 {
   /* The idea here is that we use a spin lock (via the
      InterlockedCompareExchange function) to restrict access to the

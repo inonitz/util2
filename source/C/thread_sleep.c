@@ -16,7 +16,11 @@
 #       include <pthread_time.h>
 #       define __UTIL2_DEFINITION_THREAD_SLEEP_USE_POSIX__ 1
 #   else
-#       include <threads.h>
+#       ifdef __STDC_NO_THREADS__
+#           include "util2/C/sleep.h"
+#       else
+#           include <threads.h>
+#       endif
 #       define __UTIL2_DEFINITION_THREAD_SLEEP_USE_POSIX__ 0
 #   endif
 #endif

@@ -56,25 +56,25 @@
 
 
 /* Period parameters */
-#define N           624
-#define M           397
-#define MATRIX_A    0x9908b0dfU /* constant vector a */
-#define UPPER_MASK  0x80000000U /* most significant w-r bits */
-#define LOWER_MASK  0x7fffffffU /* least significant r bits */
-#define UINT32_MASK 0xffffffffU
-#define MIXBITS(u, v) (((u) & UPPER_MASK) | ((v) & LOWER_MASK))
-#define TWIST(u, v)   ((MIXBITS(u, v) >> 1) ^ ((v) & 1U ? MATRIX_A : 0U))
+#define MT_N           624
+#define MT_M           397
+#define MT_MATRIX_A    0x9908b0dfU /* constant vector a */
+#define MT_UPPER_MASK  0x80000000U /* most significant w-r bits */
+#define MT_LOWER_MASK  0x7fffffffU /* least significant r bits */
+#define MT_UINT32_MASK 0xffffffffU
+#define MT_MIXBITS(u, v) (((u) & MT_UPPER_MASK) | ((v) & MT_LOWER_MASK))
+#define MT_TWIST(u, v)   ((MT_MIXBITS(u, v) >> 1) ^ ((v) & 1U ? MT_MATRIX_A : 0U))
 
 
 /* Tempering parameters */
-#define LAG1                 151
-#define LAG2                 36
-#define LAG1over             473
-#define LAG2over             588
-#define TEMPERING_SHIFT_1(z) (z << 8)
-#define TEMPERING_SHIFT_2(z) (z << 14)
-#define MASK1                0xb219beabU
-#define MASK2                0x56bde52aU
+#define MT_LAG1                 151
+#define MT_LAG2                 36
+#define MT_LAG1over             473
+#define MT_LAG2over             588
+#define MT_TEMPERING_SHIFT_1(z) (z << 8)
+#define MT_TEMPERING_SHIFT_2(z) (z << 14)
+#define MT_MASK1                0xb219beabU
+#define MT_MASK2                0x56bde52aU
 
 
 const u8 util2_mt19937ii_keyBufferLength = 8;
@@ -85,8 +85,8 @@ typedef randomUint32GeneratorFunction_mt19937_ver2 mt19937ver2_32_func;
 /* Global State */
 util2_mt19937ii_keyBuffer_t gs_maybeRecordedInitState;
 static mt19937ver2_32_func  gs_randNumGenFunc;
-static u32 gs_state[N];         /* the array for the state vector            */
-static i32 gs_stateIdx = N + 1; /* mti == N+1 means mt[N] is not initialized */
+static u32 gs_state[MT_N];         /* the array for the state vector            */
+static i32 gs_stateIdx = MT_N + 1; /* mti == N+1 means mt[N] is not initialized */
 static u32 gs_z;
 
 
@@ -206,15 +206,15 @@ double util2_generateRealOnHalfClosedInterval53Bits()
     initializes mt[N] with a seed
 */
 void initializeGeneratorWithRand(u32 s) {
-	gs_state[0] = s & UINT32_MASK;
-	for (gs_stateIdx = 1; gs_stateIdx < N; gs_stateIdx++) {
+	gs_state[0] = s & MT_UINT32_MASK;
+	for (gs_stateIdx = 1; gs_stateIdx < MT_N; gs_stateIdx++) {
 		gs_state[gs_stateIdx] =
 		    (1812433253U * (gs_state[gs_stateIdx - 1] ^ (gs_state[gs_stateIdx - 1] >> 30)) + gs_stateIdx);
 		/* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
 		/* In the previous versions, MSBs of the seed affect   */
 		/* only MSBs of the array mt[].                        */
 		/* 2002/01/09 modified by Makoto Matsumoto             */
-		gs_state[gs_stateIdx] &= UINT32_MASK;
+		gs_state[gs_stateIdx] &= MT_UINT32_MASK;
 		/* for >32 bit machines */
 	}
 	gs_stateIdx       = 0;
@@ -234,31 +234,31 @@ void initializeGeneratorWithRandArray(const u32 init_key[], i32 key_length)
 	initializeGeneratorWithRand(19650218U);
 	i = 1;
 	j = 0;
-	k = (N > key_length ? N : key_length);
+	k = (MT_N > key_length ? MT_N : key_length);
 	for (; k; k--) {
 		gs_state[i] = (gs_state[i] ^ ((gs_state[i - 1] ^ (gs_state[i - 1] >> 30)) * 1664525U)) + init_key[j] + j; /* non linear */
-		gs_state[i] &= UINT32_MASK; /* for WORDSIZE > 32 machines */
+		gs_state[i] &= MT_UINT32_MASK; /* for WORDSIZE > 32 machines */
 		i++;
 		j++;
-		if (i >= N) {
-			gs_state[0] = gs_state[N - 1];
+		if (i >= MT_N) {
+			gs_state[0] = gs_state[MT_N - 1];
 			i           = 1;
 		}
 		if (j >= key_length) {
 			j = 0;
         }
 	}
-	for (k = N - 1; k; k--) {
+	for (k = MT_N - 1; k; k--) {
 		gs_state[i] = (gs_state[i] ^ ((gs_state[i - 1] ^ (gs_state[i - 1] >> 30)) * 1566083941U)) - i; /* non linear */
-		gs_state[i] &= UINT32_MASK;                                                                             /* for WORDSIZE > 32 machines */
+		gs_state[i] &= MT_UINT32_MASK;                                                                             /* for WORDSIZE > 32 machines */
 		i++;
-		if (i >= N) {
-			gs_state[0] = gs_state[N - 1];
+		if (i >= MT_N) {
+			gs_state[0] = gs_state[MT_N - 1];
 			i           = 1;
 		}
 	}
 
-	gs_state[0] = UPPER_MASK; /* MSB is 1; assuring non-zero initial array */
+	gs_state[0] = MT_UPPER_MASK; /* MSB is 1; assuring non-zero initial array */
 	gs_stateIdx = 0;
 	gs_randNumGenFunc = internal_case_1;
     return;
@@ -268,26 +268,26 @@ void initializeGeneratorWithRandArray(const u32 init_key[], i32 key_length)
 
 
 u32 internal_case_1(void) {
-	gs_state[gs_stateIdx] = gs_state[gs_stateIdx + M] ^ TWIST(gs_state[gs_stateIdx], gs_state[gs_stateIdx + 1]);
-	gs_z                        = gs_state[gs_stateIdx] ^ (gs_state[gs_stateIdx + LAG1] & MASK1);
-	gs_z ^= TEMPERING_SHIFT_1(gs_z);
-	gs_z ^= TEMPERING_SHIFT_2(gs_z);
-	gs_z ^= (gs_state[gs_stateIdx + LAG2] & MASK2);
+	gs_state[gs_stateIdx] = gs_state[gs_stateIdx + MT_M] ^ MT_TWIST(gs_state[gs_stateIdx], gs_state[gs_stateIdx + 1]);
+	gs_z                        = gs_state[gs_stateIdx] ^ (gs_state[gs_stateIdx + MT_LAG1] & MT_MASK1);
+	gs_z ^= MT_TEMPERING_SHIFT_1(gs_z);
+	gs_z ^= MT_TEMPERING_SHIFT_2(gs_z);
+	gs_z ^= (gs_state[gs_stateIdx + MT_LAG2] & MT_MASK2);
 	gs_stateIdx++;
-	if (gs_stateIdx == N - M)
+	if (gs_stateIdx == MT_N - MT_M)
 		gs_randNumGenFunc = internal_case_2;
 	return gs_z;
 }
 
 
 u32 internal_case_2(void) {
-	gs_state[gs_stateIdx] = gs_state[gs_stateIdx + (M - N)] ^ TWIST(gs_state[gs_stateIdx], gs_state[gs_stateIdx + 1]);
-	gs_z                        = gs_state[gs_stateIdx] ^ (gs_state[gs_stateIdx + LAG1] & MASK1);
-	gs_z ^= TEMPERING_SHIFT_1(gs_z);
-	gs_z ^= TEMPERING_SHIFT_2(gs_z);
-	gs_z ^= (gs_state[gs_stateIdx + LAG2] & MASK2);
+	gs_state[gs_stateIdx] = gs_state[gs_stateIdx + (MT_M - MT_N)] ^ MT_TWIST(gs_state[gs_stateIdx], gs_state[gs_stateIdx + 1]);
+	gs_z                        = gs_state[gs_stateIdx] ^ (gs_state[gs_stateIdx + MT_LAG1] & MT_MASK1);
+	gs_z ^= MT_TEMPERING_SHIFT_1(gs_z);
+	gs_z ^= MT_TEMPERING_SHIFT_2(gs_z);
+	gs_z ^= (gs_state[gs_stateIdx + MT_LAG2] & MT_MASK2);
 	gs_stateIdx++;
-	if (gs_stateIdx == LAG1over) {
+	if (gs_stateIdx == MT_LAG1over) {
 		gs_randNumGenFunc = internal_case_3;
     }
 	return gs_z;
@@ -295,13 +295,13 @@ u32 internal_case_2(void) {
 
 
 u32 internal_case_3(void) {
-	gs_state[gs_stateIdx] = gs_state[gs_stateIdx + (M - N)] ^ TWIST(gs_state[gs_stateIdx], gs_state[gs_stateIdx + 1]);
-	gs_z                        = gs_state[gs_stateIdx] ^ (gs_state[gs_stateIdx - LAG1over] & MASK1);
-	gs_z ^= TEMPERING_SHIFT_1(gs_z);
-	gs_z ^= TEMPERING_SHIFT_2(gs_z);
-	gs_z ^= (gs_state[gs_stateIdx + LAG2] & MASK2);
+	gs_state[gs_stateIdx] = gs_state[gs_stateIdx + (MT_M - MT_N)] ^ MT_TWIST(gs_state[gs_stateIdx], gs_state[gs_stateIdx + 1]);
+	gs_z                        = gs_state[gs_stateIdx] ^ (gs_state[gs_stateIdx - MT_LAG1over] & MT_MASK1);
+	gs_z ^= MT_TEMPERING_SHIFT_1(gs_z);
+	gs_z ^= MT_TEMPERING_SHIFT_2(gs_z);
+	gs_z ^= (gs_state[gs_stateIdx + MT_LAG2] & MT_MASK2);
 	gs_stateIdx++;
-	if (gs_stateIdx == LAG2over) {
+	if (gs_stateIdx == MT_LAG2over) {
 		gs_randNumGenFunc = internal_case_4;
     }
 	return gs_z;
@@ -309,13 +309,13 @@ u32 internal_case_3(void) {
 
 
 u32 internal_case_4(void) {
-	gs_state[gs_stateIdx] = gs_state[gs_stateIdx + (M - N)] ^ TWIST(gs_state[gs_stateIdx], gs_state[gs_stateIdx + 1]);
-	gs_z                        = gs_state[gs_stateIdx] ^ (gs_state[gs_stateIdx - LAG1over] & MASK1);
-	gs_z ^= TEMPERING_SHIFT_1(gs_z);
-	gs_z ^= TEMPERING_SHIFT_2(gs_z);
-	gs_z ^= (gs_state[gs_stateIdx - LAG2over] & MASK2);
+	gs_state[gs_stateIdx] = gs_state[gs_stateIdx + (MT_M - MT_N)] ^ MT_TWIST(gs_state[gs_stateIdx], gs_state[gs_stateIdx + 1]);
+	gs_z                        = gs_state[gs_stateIdx] ^ (gs_state[gs_stateIdx - MT_LAG1over] & MT_MASK1);
+	gs_z ^= MT_TEMPERING_SHIFT_1(gs_z);
+	gs_z ^= MT_TEMPERING_SHIFT_2(gs_z);
+	gs_z ^= (gs_state[gs_stateIdx - MT_LAG2over] & MT_MASK2);
 	gs_stateIdx++;
-	if (gs_stateIdx == N - 1) {
+	if (gs_stateIdx == MT_N - 1) {
 		gs_randNumGenFunc = internal_case_5;
     }
 	return gs_z;
@@ -323,11 +323,11 @@ u32 internal_case_4(void) {
 
 
 u32 internal_case_5(void) {
-	gs_state[N - 1] = gs_state[M - 1] ^ TWIST(gs_state[N - 1], gs_state[0]);
-	gs_z            = gs_state[gs_stateIdx] ^ (gs_state[gs_stateIdx - LAG1over] & MASK1);
-	gs_z ^= TEMPERING_SHIFT_1(gs_z);
-	gs_z ^= TEMPERING_SHIFT_2(gs_z);
-	gs_z ^= (gs_state[gs_stateIdx - LAG2over] & MASK2);
+	gs_state[MT_N - 1] = gs_state[MT_M - 1] ^ MT_TWIST(gs_state[MT_N - 1], gs_state[0]);
+	gs_z            = gs_state[gs_stateIdx] ^ (gs_state[gs_stateIdx - MT_LAG1over] & MT_MASK1);
+	gs_z ^= MT_TEMPERING_SHIFT_1(gs_z);
+	gs_z ^= MT_TEMPERING_SHIFT_2(gs_z);
+	gs_z ^= (gs_state[gs_stateIdx - MT_LAG2over] & MT_MASK2);
 	gs_stateIdx       = 0;
 	gs_randNumGenFunc = internal_case_1;
 	return gs_z;

@@ -23,7 +23,7 @@ typedef struct __generic_format_char_buffer
 } util2_format_buffer;
 
 
-static alignsz(64) mtx_t                 s_write_lock;
+static alignsz(64) tthread_mtx_t         s_write_lock;
 static alignsz(64) atomic_uint_least64_t s_onceFlag         = 0;
 static alignsz(64) atomic_uint_least64_t s_finishedInitFlag = 0;
 static FILE*                             s_defaultlogbuf = NULL;
@@ -32,7 +32,7 @@ static FILE*                             s_currlogbuffer = NULL;
 
 static void __util2_begin_exclusion()
 {
-    while( !s_finishedInitFlag || ( mtx_trylock(&s_write_lock) != thrd_success) )
+    while( !s_finishedInitFlag || ( tthread_mtx_trylock(&s_write_lock) != tthread_thrd_success) )
         millisleep(5);
 
     return;
@@ -40,7 +40,7 @@ static void __util2_begin_exclusion()
 
 static void __util2_end_exclusion()
 {
-    mtx_unlock(&s_write_lock);
+    tthread_mtx_unlock(&s_write_lock);
     return;
 }
 
@@ -53,7 +53,7 @@ static void util2_destroy_state()
         millisleep(5);
     }
 #endif
-    mtx_destroy(&s_write_lock);
+    tthread_mtx_destroy(&s_write_lock);
     return;
 }
 
@@ -67,7 +67,7 @@ static void util2_init_state_once()
         return; /* The winning thread will exchange `onceflag` to 1, the rest will fail now and on subsequent calls */
 
 
-    if(mtx_init(&s_write_lock, mtx_plain | mtx_recursive) != thrd_success) {
+    if(tthread_mtx_init(&s_write_lock, tthread_mtx_plain | tthread_mtx_recursive) != tthread_thrd_success) {
         exit(-1);
     }
     s_defaultlogbuf = UTIL2_PRINT_LOG_TO_FILE == 1 ? fopen("printlog.txt", "w") : NULL;

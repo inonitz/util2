@@ -22,7 +22,7 @@ set(SOURCES
     source/C/stb_image.c
     source/C/thread_sleep.c
     source/C/tinycthread.c
-    
+    # $<$<NOT:$<PLATFORM_ID:Windows>>:source/C/tinycthread.c>    
     source/aligned_malloc.cpp
     source/file.cpp
     source/pool.cpp
@@ -54,8 +54,8 @@ set(HEADERS
     include/util2/C/static_assert.h
     include/util2/C/stb_image.h
     include/util2/C/string.h
-    include/util2/C/thread_sleep.h
     include/util2/C/tinycthread.h
+    # $<$<NOT:$<PLATFORM_ID:Windows>>:include/util2/C/tinycthread.h>
     include/util2/C/util2_api.h
     include/util2/C/util2_extern.h
     include/util2/C/varg_count.h
@@ -88,7 +88,6 @@ add_library(UTIL2::util2 ALIAS ${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCES})
 target_sources(${PROJECT_NAME} PRIVATE ${HEADERS})
-
 
 # The minimum C/C++ versions required for the library
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)

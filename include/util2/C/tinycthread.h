@@ -168,16 +168,16 @@ int _tthread_timespec_get(struct timespec *ts, int base);
 #endif
 
 /* Function return values */
-#define thrd_error    0 /**< The requested operation failed */
-#define thrd_success  1 /**< The requested operation succeeded */
-#define thrd_timedout 2 /**< The time specified in the call was reached without acquiring the requested resource */
-#define thrd_busy     3 /**< The requested operation failed because a tesource requested by a test and return function is already in use */
-#define thrd_nomem    4 /**< The requested operation failed because it was unable to allocate memory */
+#define tthread_thrd_error   0 /**< The requested operation failed */
+#define tthread_thrd_success 1 /**< The requested operation succeeded */
+#define tthread_thrd_timeout 2 /**< The time specified in the call was reached without acquiring the requested resource */
+#define tthread_thrd_busy    3 /**< The requested operation failed because a tesource requested by a test and return function is already in use */
+#define tthread_thrd_nomem   4 /**< The requested operation failed because it was unable to allocate memory */
 
 /* Mutex types */
-#define mtx_plain     0
-#define mtx_timed     1
-#define mtx_recursive 2
+#define tthread_mtx_plain     0
+#define tthread_mtx_timed     1
+#define tthread_mtx_recursive 2
 
 /* Mutex */
 #if defined(_TTHREAD_WIN32_)
@@ -189,7 +189,7 @@ typedef struct {
   int mAlreadyLocked;         /* TRUE if the mutex is already locked */
   int mRecursive;             /* TRUE if the mutex is recursive */
   int mTimed;                 /* TRUE if the mutex is timed */
-} mtx_t;
+} tthread_mtx_t;
 #else
 typedef pthread_mutex_t mtx_t;
 #endif
@@ -197,57 +197,57 @@ typedef pthread_mutex_t mtx_t;
 /** Create a mutex object.
 * @param mtx A mutex object.
 * @param type Bit-mask that must have one of the following six values:
-*   @li @c mtx_plain for a simple non-recursive mutex
-*   @li @c mtx_timed for a non-recursive mutex that supports timeout
-*   @li @c mtx_plain | @c mtx_recursive (same as @c mtx_plain, but recursive)
-*   @li @c mtx_timed | @c mtx_recursive (same as @c mtx_timed, but recursive)
-* @return @ref thrd_success on success, or @ref thrd_error if the request could
+*   @li @c tthread_mtx_plain for a simple non-recursive mutex
+*   @li @c tthread_mtx_timed for a non-recursive mutex that supports timeout
+*   @li @c tthread_mtx_plain | @c tthread_mtx_recursive (same as @c tthread_mtx_plain, but recursive)
+*   @li @c tthread_mtx_timed | @c tthread_mtx_recursive (same as @c tthread_mtx_timed, but recursive)
+* @return @ref tthread_thrd_success on success, or @ref tthread_thrd_error if the request could
 * not be honored.
 */
-int mtx_init(mtx_t *mtx, int type);
+int tthread_mtx_init(tthread_mtx_t *mtx, int type);
 
 /** Release any resources used by the given mutex.
 * @param mtx A mutex object.
 */
-void mtx_destroy(mtx_t *mtx);
+void tthread_mtx_destroy(tthread_mtx_t *mtx);
 
 /** Lock the given mutex.
 * Blocks until the given mutex can be locked. If the mutex is non-recursive, and
 * the calling thread already has a lock on the mutex, this call will block
 * forever.
 * @param mtx A mutex object.
-* @return @ref thrd_success on success, or @ref thrd_error if the request could
+* @return @ref tthread_thrd_success on success, or @ref tthread_thrd_error if the request could
 * not be honored.
 */
-int mtx_lock(mtx_t *mtx);
+int tthread_mtx_lock(tthread_mtx_t *mtx);
 
 /** Lock the given mutex, or block until a specific point in time.
 * Blocks until either the given mutex can be locked, or the specified TIME_UTC
 * based time.
 * @param mtx A mutex object.
 * @param ts A UTC based calendar time
-* @return @ref The mtx_timedlock function returns thrd_success on success, or
-* thrd_timedout if the time specified was reached without acquiring the
-* requested resource, or thrd_error if the request could not be honored.
+* @return @ref The tthread_mtx_timedlock function returns tthread_thrd_success on success, or
+* tthread_thrd_timeout if the time specified was reached without acquiring the
+* requested resource, or tthread_thrd_error if the request could not be honored.
 */
-int mtx_timedlock(mtx_t *mtx, const struct timespec *ts);
+int tthread_mtx_timedlock(tthread_mtx_t *mtx, const struct timespec *ts);
 
 /** Try to lock the given mutex.
 * The specified mutex shall support either test and return or timeout. If the
 * mutex is already locked, the function returns without blocking.
 * @param mtx A mutex object.
-* @return @ref thrd_success on success, or @ref thrd_busy if the resource
-* requested is already in use, or @ref thrd_error if the request could not be
+* @return @ref tthread_thrd_success on success, or @ref tthread_thrd_busy if the resource
+* requested is already in use, or @ref tthread_thrd_error if the request could not be
 * honored.
 */
-int mtx_trylock(mtx_t *mtx);
+int tthread_mtx_trylock(tthread_mtx_t *mtx);
 
 /** Unlock the given mutex.
 * @param mtx A mutex object.
-* @return @ref thrd_success on success, or @ref thrd_error if the request could
+* @return @ref tthread_thrd_success on success, or @ref tthread_thrd_error if the request could
 * not be honored.
 */
-int mtx_unlock(mtx_t *mtx);
+int tthread_mtx_unlock(tthread_mtx_t *mtx);
 
 /* Condition variable */
 #if defined(_TTHREAD_WIN32_)
@@ -255,42 +255,42 @@ typedef struct {
   HANDLE mEvents[2];                  /* Signal and broadcast event HANDLEs. */
   unsigned int mWaitersCount;         /* Count of the number of waiters. */
   CRITICAL_SECTION mWaitersCountLock; /* Serialize access to mWaitersCount. */
-} cnd_t;
+} tthread_cnd_t;
 #else
 typedef pthread_cond_t cnd_t;
 #endif
 
 /** Create a condition variable object.
 * @param cond A condition variable object.
-* @return @ref thrd_success on success, or @ref thrd_error if the request could
+* @return @ref tthread_thrd_success on success, or @ref tthread_thrd_error if the request could
 * not be honored.
 */
-int cnd_init(cnd_t *cond);
+int tthread_cnd_init(tthread_cnd_t *cond);
 
 /** Release any resources used by the given condition variable.
 * @param cond A condition variable object.
 */
-void cnd_destroy(cnd_t *cond);
+void tthread_cnd_destroy(tthread_cnd_t *cond);
 
 /** Signal a condition variable.
 * Unblocks one of the threads that are blocked on the given condition variable
 * at the time of the call. If no threads are blocked on the condition variable
 * at the time of the call, the function does nothing and return success.
 * @param cond A condition variable object.
-* @return @ref thrd_success on success, or @ref thrd_error if the request could
+* @return @ref tthread_thrd_success on success, or @ref tthread_thrd_error if the request could
 * not be honored.
 */
-int cnd_signal(cnd_t *cond);
+int tthread_cnd_signal(tthread_cnd_t *cond);
 
 /** Broadcast a condition variable.
 * Unblocks all of the threads that are blocked on the given condition variable
 * at the time of the call. If no threads are blocked on the condition variable
 * at the time of the call, the function does nothing and return success.
 * @param cond A condition variable object.
-* @return @ref thrd_success on success, or @ref thrd_error if the request could
+* @return @ref tthread_thrd_success on success, or @ref tthread_thrd_error if the request could
 * not be honored.
 */
-int cnd_broadcast(cnd_t *cond);
+int tthread_cnd_broadcast(tthread_cnd_t *cond);
 
 /** Wait for a condition variable to become signaled.
 * The function atomically unlocks the given mutex and endeavors to block until
@@ -299,10 +299,10 @@ int cnd_broadcast(cnd_t *cond);
 * before it returns.
 * @param cond A condition variable object.
 * @param mtx A mutex object.
-* @return @ref thrd_success on success, or @ref thrd_error if the request could
+* @return @ref tthread_thrd_success on success, or @ref tthread_thrd_error if the request could
 * not be honored.
 */
-int cnd_wait(cnd_t *cond, mtx_t *mtx);
+int tthread_cnd_wait(tthread_cnd_t* cond, tthread_mtx_t* mtx);
 
 /** Wait for a condition variable to become signaled.
 * The function atomically unlocks the given mutex and endeavors to block until
@@ -312,17 +312,17 @@ int cnd_wait(cnd_t *cond, mtx_t *mtx);
 * @param cond A condition variable object.
 * @param mtx A mutex object.
 * @param xt A point in time at which the request will time out (absolute time).
-* @return @ref thrd_success upon success, or @ref thrd_timeout if the time
+* @return @ref tthread_thrd_success upon success, or @ref thrd_timeout if the time
 * specified in the call was reached without acquiring the requested resource, or
-* @ref thrd_error if the request could not be honored.
+* @ref tthread_thrd_error if the request could not be honored.
 */
-int cnd_timedwait(cnd_t *cond, mtx_t *mtx, const struct timespec *ts);
+int tthread_cnd_timedwait(tthread_cnd_t* cond, tthread_mtx_t* mtx, const struct timespec* ts);
 
 /* Thread */
 #if defined(_TTHREAD_WIN32_)
-typedef HANDLE thrd_t;
+typedef HANDLE tthread_thrd_t;
 #else
-typedef pthread_t thrd_t;
+typedef pthread_t tthread_thrd_t;
 #endif
 
 /** Thread start function.
@@ -340,36 +340,36 @@ typedef int (*thrd_start_t)(void *arg);
 * @param func A function pointer to the function that will be executed in
 *        the new thread.
 * @param arg An argument to the thread function.
-* @return @ref thrd_success on success, or @ref thrd_nomem if no memory could
-* be allocated for the thread requested, or @ref thrd_error if the request
+* @return @ref tthread_thrd_success on success, or @ref tthread_thrd_nomem if no memory could
+* be allocated for the thread requested, or @ref tthread_thrd_error if the request
 * could not be honored.
 * @note A thread’s identifier may be reused for a different thread once the
 * original thread has exited and either been detached or joined to another
 * thread.
 */
-int thrd_create(thrd_t *thr, thrd_start_t func, void *arg);
+int tthread_thrd_create(tthread_thrd_t *thr, thrd_start_t func, void *arg);
 
 /** Identify the calling thread.
 * @return The identifier of the calling thread.
 */
-thrd_t thrd_current(void);
+tthread_thrd_t tthread_thrd_current(void);
 
 /** Dispose of any resources allocated to the thread when that thread exits.
- * @return thrd_success, or thrd_error on error
+ * @return tthread_thrd_success, or tthread_thrd_error on error
 */
-int thrd_detach(thrd_t thr);
+int tthread_thrd_detach(tthread_thrd_t thr);
 
 /** Compare two thread identifiers.
 * The function determines if two thread identifiers refer to the same thread.
 * @return Zero if the two thread identifiers refer to different threads.
 * Otherwise a nonzero value is returned.
 */
-int thrd_equal(thrd_t thr0, thrd_t thr1);
+int tthread_thrd_equal(tthread_thrd_t thr0, tthread_thrd_t thr1);
 
 /** Terminate execution of the calling thread.
 * @param res Result code of the calling thread.
 */
-TTHREAD_NORETURN void thrd_exit(int res);
+TTHREAD_NORETURN void tthread_thrd_exit(int res);
 
 /** Wait for a thread to terminate.
 * The function joins the given thread with the current thread by blocking
@@ -377,10 +377,10 @@ TTHREAD_NORETURN void thrd_exit(int res);
 * @param thr The thread to join with.
 * @param res If this pointer is not NULL, the function will store the result
 *        code of the given thread in the integer pointed to by @c res.
-* @return @ref thrd_success on success, or @ref thrd_error if the request could
+* @return @ref tthread_thrd_success on success, or @ref tthread_thrd_error if the request could
 * not be honored.
 */
-int thrd_join(thrd_t thr, int *res);
+int tthread_thrd_join(tthread_thrd_t thr, int *res);
 
 /** Put the calling thread to sleep.
 * Suspend execution of the calling thread.
@@ -393,31 +393,31 @@ int thrd_join(thrd_t thr, int *res);
 * @return 0 (zero) on successful sleep, -1 if an interrupt occurred,
 *         or a negative value if the operation fails.
 */
-int thrd_sleep(const struct timespec *duration, struct timespec *remaining);
+int tthread_thrd_sleep(const struct timespec *duration, struct timespec *remaining);
 
 /** Yield execution to another thread.
 * Permit other threads to run, even if the current thread would ordinarily
 * continue to run.
 */
-void thrd_yield(void);
+void tthread_thrd_yield(void);
 
 /* Thread local storage */
 #if defined(_TTHREAD_WIN32_)
-typedef DWORD tss_t;
+typedef DWORD tthread_tss_t;
 #else
-typedef pthread_key_t tss_t;
+typedef pthread_key_t tthread_tss_t;
 #endif
 
 /** Destructor function for a thread-specific storage.
 * @param val The value of the destructed thread-specific storage.
 */
-typedef void (*tss_dtor_t)(void *val);
+typedef void (*tthread_tss_dtor_t)(void *val);
 
 /** Create a thread-specific storage.
 * @param key The unique key identifier that will be set if the function is
 *        successful.
 * @param dtor Destructor function. This can be NULL.
-* @return @ref thrd_success on success, or @ref thrd_error if the request could
+* @return @ref tthread_thrd_success on success, or @ref tthread_thrd_error if the request could
 * not be honored.
 * @note On Windows, the @c dtor will definitely be called when
 * appropriate for threads created with @ref thrd_create.  It will be
@@ -425,36 +425,36 @@ typedef void (*tss_dtor_t)(void *val);
 * for DLLs loaded with LoadLibraryEx.  In order to be certain, you
 * should use @ref thrd_create whenever possible.
 */
-int tss_create(tss_t *key, tss_dtor_t dtor);
+int tthread_tss_create(tthread_tss_t *key, tthread_tss_dtor_t dtor);
 
 /** Delete a thread-specific storage.
 * The function releases any resources used by the given thread-specific
 * storage.
 * @param key The key that shall be deleted.
 */
-void tss_delete(tss_t key);
+void tthread_tss_delete(tthread_tss_t key);
 
 /** Get the value for a thread-specific storage.
 * @param key The thread-specific storage identifier.
 * @return The value for the current thread held in the given thread-specific
 * storage.
 */
-void *tss_get(tss_t key);
+void* tthread_tss_get(tthread_tss_t key);
 
 /** Set the value for a thread-specific storage.
 * @param key The thread-specific storage identifier.
 * @param val The value of the thread-specific storage to set for the current
 *        thread.
-* @return @ref thrd_success on success, or @ref thrd_error if the request could
+* @return @ref tthread_thrd_success on success, or @ref tthread_thrd_error if the request could
 * not be honored.
 */
-int tss_set(tss_t key, void *val);
+int tthread_tss_set(tthread_tss_t key, void *val);
 
 #if defined(_TTHREAD_WIN32_)
   typedef struct {
     LONG volatile status;
     CRITICAL_SECTION lock;
-  } once_flag;
+  } tthread_once_flag;
   #define ONCE_FLAG_INIT {0,}
 #else
   #define once_flag pthread_once_t
@@ -467,9 +467,9 @@ int tss_set(tss_t key, void *val);
  * @param func Callback to invoke.
  */
 #if defined(_TTHREAD_WIN32_)
-  void call_once(once_flag *flag, void (*func)(void));
+  void tthread_call_once(tthread_once_flag *flag, void (*func)(void));
 #else
-  #define call_once(flag,func) pthread_once(flag,func)
+  #define tthread_call_once(flag,func) pthread_once(flag,func)
 #endif
 
 #ifdef __cplusplus
