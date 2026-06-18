@@ -191,7 +191,7 @@ typedef struct {
   int mTimed;                 /* TRUE if the mutex is timed */
 } tthread_mtx_t;
 #else
-typedef pthread_mutex_t mtx_t;
+typedef pthread_mutex_t tthread_mtx_t;
 #endif
 
 /** Create a mutex object.
@@ -257,7 +257,7 @@ typedef struct {
   CRITICAL_SECTION mWaitersCountLock; /* Serialize access to mWaitersCount. */
 } tthread_cnd_t;
 #else
-typedef pthread_cond_t cnd_t;
+typedef pthread_cond_t tthread_cnd_t;
 #endif
 
 /** Create a condition variable object.

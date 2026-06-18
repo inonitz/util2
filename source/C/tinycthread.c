@@ -181,7 +181,7 @@ int tthread_mtx_timedlock(tthread_mtx_t *mtx, const struct timespec *ts)
     case 0:
       return tthread_thrd_success;
     case ETIMEDOUT:
-      return thrd_timedout;
+      return tthread_thrd_timeout;
     default:
       return tthread_thrd_error;
   }
@@ -255,7 +255,7 @@ int tthread_mtx_trylock(tthread_mtx_t *mtx)
   }
   return ret;
 #else
-  return (pthread_mutex_trylock(mtx) == 0) ? tthread_thrd_success : thrd_busy;
+  return (pthread_mutex_trylock(mtx) == 0) ? tthread_thrd_success : tthread_thrd_busy;
 #endif
 }
 
@@ -465,7 +465,7 @@ int tthread_cnd_timedwait(tthread_cnd_t *cond, tthread_mtx_t *mtx, const struct 
   ret = pthread_cond_timedwait(cond, mtx, ts);
   if (ret == ETIMEDOUT)
   {
-    return thrd_timedout;
+    return tthread_thrd_timeout;
   }
   return ret == 0 ? tthread_thrd_success : tthread_thrd_error;
 #endif
