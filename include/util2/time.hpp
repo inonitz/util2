@@ -9,9 +9,11 @@
 namespace util2::Time {
 
 
-using nanosecond  = std::chrono::nanoseconds;
-using millisecond = std::chrono::milliseconds;
+using nanosecond  = std::chrono::nanoseconds;  /* 10-9 */
+using microsecond = std::chrono::microseconds; /* 10-6 */
+using millisecond = std::chrono::milliseconds; /* 10-3 */
 using timepoint_nano  = std::chrono::time_point<std::chrono::steady_clock, nanosecond>;
+using timepoint_micro = std::chrono::time_point<std::chrono::steady_clock, microsecond>;
 using timepoint_milli = std::chrono::time_point<std::chrono::steady_clock, millisecond>;
 using dursecondf32 = std::chrono::duration<float>;
 using dursecondf64 = std::chrono::duration<double>;
@@ -30,17 +32,34 @@ template<class clock_t = std::chrono::steady_clock> auto now() {
     return clock_t::now(); 
 }
 
-template<typename Before, typename After> auto duration_cast(Before const& timepoint) {
-    return std::chrono::duration_cast<After>(timepoint);
+template<typename Before, typename After> auto duration_cast(Before const& duration) {
+    return std::chrono::duration_cast<After>(duration);
+}
+template<typename Before, typename After> auto timepoint_cast(Before const& timepoint) {
+    return std::chrono::time_point_cast<After>(timepoint);
 }
 
-template< typename From > auto to_milli(From const& timepoint) {
-    return duration_cast<From, millisecond>(timepoint);
+template< typename From > auto dur_milli(From const& duration) {
+    return duration_cast<From, millisecond>(duration);
+}
+template< typename From > auto dur_micro(From const& duration) {
+    return duration_cast<From, microsecond>(duration);
+}
+template< typename From > auto dur_nano(From const& duration) {
+    return duration_cast<From, nanosecond>(duration);
 }
 
-template< typename From > auto to_nano(From const& timepoint) {
-    return duration_cast<From, nanosecond>(timepoint);
+template< typename From > auto tp_milli(From const& timepoint) {
+    return timepoint_cast<From, millisecond>(timepoint);
 }
+template< typename From > auto tp_micro(From const& timepoint) {
+    return timepoint_cast<From, microsecond>(timepoint);
+}
+template< typename From > auto tp_nano(From const& timepoint) {
+    return timepoint_cast<From, nanosecond>(timepoint);
+}
+
+
 
 
 template<
