@@ -14,9 +14,9 @@ set(SOURCES
     source/C/file.c
     source/C/ifcrash2.c
     source/C/image2.c
-    source/C/marker4.c
+    source/C/marker5.c
     source/C/mt19937ii.c
-    source/C/print.c
+    source/C/print2.c
     source/C/random.c
     source/C/sleep.c
     source/C/stb_image.c
@@ -44,11 +44,11 @@ set(HEADERS
     include/util2/C/ifcrash2.h
     include/util2/C/image2.h
     include/util2/C/macro.h
-    include/util2/C/marker4.h
+    include/util2/C/marker5.h
     include/util2/C/mt19937ii.h
     include/util2/C/murmur64a.h
     include/util2/C/platform.h
-    include/util2/C/print.h
+    include/util2/C/print2.h
     include/util2/C/random.h
     include/util2/C/sleep.h
     include/util2/C/static_assert.h

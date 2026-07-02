@@ -457,7 +457,7 @@ int tthread_tss_set(tthread_tss_t key, void *val);
   } tthread_once_flag;
   #define ONCE_FLAG_INIT {0,}
 #else
-  #define once_flag pthread_once_t
+  typedef pthread_once_t tthread_once_flag;
   #define ONCE_FLAG_INIT PTHREAD_ONCE_INIT
 #endif
 
