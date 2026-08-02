@@ -8,6 +8,9 @@
 
 namespace util2::Time {
 
+constexpr f64 kNanosecondsInOneSecond  = 1e+9;
+constexpr f64 kMicrosecondsInOneSecond = 1e+6;
+constexpr f64 kMillisecondsInOneSecond = 1e+3;
 
 using nanosecond  = std::chrono::nanoseconds;  /* 10-9 */
 using microsecond = std::chrono::microseconds; /* 10-6 */
@@ -112,7 +115,7 @@ public:
         return get_underlying_value_choose<diff_type_t, false>();
     }
 
-    template<typename T> T value_units(f64 HowManyUnitsIn1Second) const
+    template<typename T> T value_units(f64 HowManyUnitsIn1Second = kNanosecondsInOneSecond) const
     {
         constexpr auto kCvtNsToSeconds = 1e-9;
         f64 unitConvert = kCvtNsToSeconds * HowManyUnitsIn1Second;
